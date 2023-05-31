@@ -1,0 +1,28 @@
+name: Greetings
+
+on:
+  - pull_request_target
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/first-interaction@v1.1.1
+        with:
+          repo-token: ${{ github.token }}
+          pr-message: >
+            I just wanted to reach out and thank you for opening a pull request
+            on my project. It means a lot to me that you took the time to
+            contribute, especially as a first-time contributor.
+
+
+            Your willingness to help out with your pull request is appreciated
+            and valued, and I will do my best to review it and provide feedback
+            as quickly as possible.
+
+
+            Best regards,
+
+            Lanqing Huang

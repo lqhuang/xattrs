@@ -1,0 +1,111 @@
+# This workflow will upload a Python Package using Twine when a release is created
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Upload Python Package
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & verify package
+    runs-on: ubuntu-latest
+    outputs:
+      hash: ${{ steps.hash.outputs.hash }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+          cache: "pip"
+      - run: pip install build wheel hatchling
+      - run: SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) python -m build
+      - name: Generate hash
+        id: hash
+        run: |
+          cd dist
+          echo "hash=$(sha256sum * | base64 -w0)" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./dist
+
+  provenance:
+    needs: ["build"]
+    permissions:
+      actions: read
+      id-token: write
+      contents: write
+    # Can't pin with hash due to how this workflow works.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.6.0
+    with:
+      base64-subjects: ${{ needs.build.outputs.hash }}
+      upload-assets: true
+
+  create-release:
+    # Upload the sdist, wheels, and provenance to a GitHub release. They remain
+    # available as build artifacts for a while as well.
+    needs: ["provenance"]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: dist/
+      - name: create release
+        run: |
+          gh release create --draft \
+          --repo ${{ github.repository }} ${{ github.ref_name }} ./dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  release-test-pypi:
+    name: Publish in-dev package to test.pypi.org
+    runs-on: ubuntu-latest
+    needs:
+      - build
+
+    steps:
+      - name: Download built packages
+        uses: actions/download-artifact@v3
+        with:
+          path: dist/
+
+      - name: Upload package to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  # Upload to real PyPI on GitHub Releases.
+  release-pypi:
+    name: Publish released package to pypi.org
+    needs:
+      - provenance
+      - release-test-pypi
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download built packages
+        uses: actions/download-artifact@v3
+        with:
+          path: dist/
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          print-hash: true
+          packages-dir: dist/
