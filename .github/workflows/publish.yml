@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Python Package
+name: Upload Python Package to PyPI
 
 on:
   release:
@@ -53,7 +53,7 @@ jobs:
       base64-subjects: ${{ needs.build.outputs.hash }}
       upload-assets: true
 
-  create-release:
+  gh-release:
     # Upload the sdist, wheels, and provenance to a GitHub release. They remain
     # available as build artifacts for a while as well.
     needs: ["provenance"]
@@ -96,7 +96,7 @@ jobs:
       - release-test-pypi
 
     runs-on: ubuntu-latest
-    environment: "publish"
+    environment: "release"
 
     permissions:
       id-token: write
