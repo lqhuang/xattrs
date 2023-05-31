@@ -1,23 +1,22 @@
 [build-system]
-requires = ["hatchling", "hatch-fancy-pypi-readme>=22.5.0"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "xattrs"
-version = "0.1.0"
+version = "0.0.0"
 description = 'eXtensible serializing and deserializing tools for attrs'
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = { text = "BSD-3-Clause" }
 keywords = ["attrs", "cattrs", "json", "serde"]
 authors = [{ name = "Lanqing Huang", email = "lqhuang@outlook.com" }]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 3 - Alpha",
   "Programming Language :: Rust",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -30,7 +29,25 @@ classifiers = [
 dependencies = ["attrs"]
 
 [project.optional-dependencies]
-dev = ["pre-commit"]
+tests = [
+  'cloudpickle; python_implementation == "CPython"',
+  "hypothesis",
+  "pympler",
+  "pytest>=4.3.0",
+  'mypy>=1.1.1; python_implementation == "CPython"',
+  'pytest-mypy-plugins; python_implementation == "CPython" and python_version<"3.12"',
+  "coverage[toml]",
+]
+docs = [
+  "furo",
+  "myst-parser",
+  "sphinx",
+  "sphinx-notfound-page",
+  "sphinxcontrib-towncrier",
+  "towncrier",
+]
+linters = ['mypy', 'black', 'isort', 'ruff']
+dev = ["xattrs[tests,docs,linters]", "pre-commit"]
 
 [project.urls]
 Documentation = "https://github.com/lqhuang/xattrs#readme"
@@ -38,26 +55,20 @@ Issues = "https://github.com/lqhuang/xattrs/issues"
 Source = "https://github.com/lqhuang/xattrs"
 
 ## Build
-[tool.hatch.envs.default]
-dependencies = ["coverage[toml]>=6.5", "pytest"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/xattrs"]
 
-[tool.hatch.envs.default.scripts]
-test = "pytest {args:tests}"
-test-cov = "coverage run -m pytest {args:tests}"
-cov-report = ["- coverage combine", "coverage report"]
-cov = ["test-cov", "cov-report"]
+[tool.hatch.build.targets.sdist]
+exclude = [".github"]
 
-[[tool.hatch.envs.all.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+## Pytest
+[tool.pytest.ini_options]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+testpaths = "tests"
 
-[tool.hatch.envs.lint]
-detached = true
-dependencies = ["black>=23.1.0", "mypy>=1.0.0", "ruff>=0.0.243"]
-[tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/attrs_serde tests}"
-style = ["ruff {args:.}", "black --check --diff {args:.}"]
-fmt = ["black {args:.}", "ruff --fix {args:.}", "style"]
-all = ["style", "typing"]
+[tool.check-wheel-contents]
+toplevel = ["xattrs"]
 
 ## Formatter
 [tool.black]
