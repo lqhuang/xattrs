@@ -71,31 +71,32 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-  release-test-pypi:
-    name: Publish in-dev package to test.pypi.org
-    needs:
-      - build
+  # release-test-pypi:
+  #   name: Publish in-dev package to test.pypi.org
+  #   needs:
+  #     - build
 
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
 
-    steps:
-      - name: Download built packages
-        uses: actions/download-artifact@v3
-      - name: Upload package to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          print-hash: true
-          packages-dir: artifact/
-          repository-url: https://test.pypi.org/legacy/
+  #   steps:
+  #     - name: Download built packages
+  #       uses: actions/download-artifact@v3
+  #     - name: Upload package to Test PyPI
+  #       uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #         print-hash: true
+  #         packages-dir: artifact/
+  #         repository-url: https://test.pypi.org/legacy/
 
   # Upload to real PyPI on GitHub Releases.
   release-pypi:
     name: Publish released package to pypi.org
     needs:
+      - build
       # - provenance
-      - release-test-pypi
+      # - release-test-pypi
 
     runs-on: ubuntu-latest
     environment: "release"
