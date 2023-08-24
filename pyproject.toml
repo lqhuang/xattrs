@@ -39,12 +39,16 @@ tests = [
   "coverage[toml]",
 ]
 docs = [
+  "towncrier",
   "furo",
   "myst-parser",
   "sphinx",
   "sphinx-notfound-page",
+  "sphinx-copybutton",
+  "sphinx-autobuild",
   "sphinxcontrib-towncrier",
-  "towncrier",
+  "sphinx-autodoc-typehints",
+  "sphinxext-opengraph",
 ]
 linters = ['mypy', 'black', 'isort', 'ruff']
 dev = ["xattrs[tests,docs,linters]", "pre-commit"]
