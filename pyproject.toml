@@ -1,13 +1,13 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [project]
 name = "xattrs"
-version = "0.0.0"
+version = "0.0.1"
 description = 'eXtensible serializing and deserializing tools for attrs'
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 license = { text = "BSD-3-Clause" }
 keywords = ["attrs", "cattrs", "serde", "json", "schema"]
 authors = [{ name = "Lanqing Huang", email = "lqhuang@outlook.com" }]
@@ -27,7 +27,7 @@ classifiers = [
   "Operating System :: POSIX",
   "Typing :: Typed",
 ]
-dependencies = ["attrs", "cattrs"]
+dependencies = ["attrs", "typing_extensions"]
 
 [project.optional-dependencies]
 yaml = ["strictyaml"]
@@ -42,7 +42,7 @@ all = [
   "xattrs[msgpack]",
   "xattrs[cloudpickle]",
 ]
-tests = [
+test = [
   'cloudpickle; python_implementation == "CPython"',
   "hypothesis",
   "pympler",
@@ -63,20 +63,32 @@ docs = [
   "sphinx-autodoc-typehints",
   "sphinxext-opengraph",
 ]
-linters = ['mypy', 'black', 'isort', 'ruff']
-dev = ["xattrs[tests,docs,linters]", "pre-commit"]
+linter = ['mypy', 'black', 'isort', 'ruff', "pyupgrade", "pre-commit"]
+build = ["pip", "build>=1.0.0", "wheel", "pdm", "pdm-backend"]
+dev = ["xattrs[linter,test,build,docs]"]
+
 
 [project.urls]
 Documentation = "https://github.com/lqhuang/xattrs#readme"
 Issues = "https://github.com/lqhuang/xattrs/issues"
 Source = "https://github.com/lqhuang/xattrs"
 
-## Build
+# ## Build
 [tool.hatch.build.targets.wheel]
 packages = ["src/xattrs"]
 
-[tool.hatch.build.targets.sdist]
-exclude = [".github"]
+[tool.pdm.build]
+package-dir = "src"
+source-includes = [
+  "docs",
+  "src",
+  "tests",
+  "CHANGELOG.md",
+  "LICENSE",
+  "Makefile",
+  "pyproject.toml",
+  "README.md",
+]
 
 ## Pytest
 [tool.pytest.ini_options]
