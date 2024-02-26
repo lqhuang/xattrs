@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from abc import ABC, abstractmethod
 
@@ -10,29 +10,24 @@ from abc import ABC, abstractmethod
 A = TypeVar("A")
 
 IF = TypeVar("IF")  # interchange format
+PYOBJ = TypeVar("PYOBJ")  # python object
 
 
-class AbstrctCodec(ABC, Generic[A, IF]):
-    decoder: AbstrctDecoder[IF, A]
-    encoder: AbstrctEncoder[A, IF]
+class AbstrctCodec(ABC, Generic[A, PYOBJ]):
+    decoder: AbstrctDecoder[PYOBJ, A]
+    encoder: AbstrctEncoder[A, PYOBJ]
 
 
-class AbstrctDecoder(ABC, Generic[IF, A]):
+class AbstrctDecoder(ABC, Generic[PYOBJ, A]):
     @abstractmethod
-    def __call__(self, data: IF) -> A:
-        ...
+    def __call__(self, data: PYOBJ) -> A: ...
 
 
-class AbstrctEncoder(ABC, Generic[A, IF]):
+class AbstrctEncoder(ABC, Generic[A, PYOBJ]):
     @abstractmethod
-    def __call__(self, data: A) -> IF:
-        ...
+    def __call__(self, data: A) -> PYOBJ: ...
 
 
 class AbstrctParser(ABC, Generic[IF]):
-    def parse(self, data: str | bytes) -> A:
-        return self(data)
-
     @abstractmethod
-    def __call__(self, data: bytes) -> Any:
-        ...
+    def __call__(self, data: str | bytes) -> IF: ...
