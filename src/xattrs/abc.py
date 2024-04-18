@@ -9,34 +9,41 @@ from xattrs.typing import A, B, ConstructHook, DeconstructHook, IntermType, T
 ###############################################################################
 
 
-class AbstractConverter(ABC, Generic[IntermType]):
-    constructor: AbstractConstructor[IntermType]
-    deconstrucor: AbstractDeconstructor[IntermType]
-
-
 class AbstractConstructor(ABC, Generic[IntermType]):
     def __call__(self, wrapped: T) -> Callable[[T], T]: ...
 
-    @abstractmethod
-    def register_hook(self, Cls: type[Any], func: ConstructHook[Any]) -> Any: ...
+    _construct_hook_map: ...
 
     @abstractmethod
-    def from_interm(self, data: IntermType, Cls: type[Any]) -> Any: ...
+    def register_hook(self, Cls: type[Any], func: ConstructHook[Any]) -> None: ...
+
+    @abstractmethod
+    def construct(self, data: IntermType, Cls: type[Any]) -> Any: ...
 
 
 class AbstractDeconstructor(ABC, Generic[IntermType]):
     def __call__(self, wrapped: T) -> Callable[[T], T]: ...
 
     @abstractmethod
-    def register_hook(
+    def register_hook(self, Cls: type[Any], func: DeconstructHook[Any]) -> None: ...
+
+    @abstractmethod
+    def deconstruct(self, obj: Any) -> IntermType: ..
+
+
+class AbstractConverter(ABC, Generic[IntermType]):
+    constructor: AbstractConstructor[IntermType]
+    deconstrucor: AbstractDeconstructor[IntermType]
+
+    @abstractmethod
+    def register_construct_hook(
+        self, Cls: type[Any], func: ConstructHook[Any]
+    ) -> None: ...
+
+    @abstractmethod
+    def register_deconstruct_hook(
         self, Cls: type[Any], func: DeconstructHook[Any]
-    ) -> IntermType: ...
-
-    @abstractmethod
-    def as_interm(self, obj: Any) -> IntermType: ...
-
-    @abstractmethod
-    def to(self, obj: Any) -> IntermType: ...
+    ) -> None: ...
 
 
 ###############################################################################
@@ -71,8 +78,13 @@ class AbstractSerializer(ABC, Generic[IntermType, T]):
     def __call__(self, wrapped: T) -> Callable[[T], T]: ...
 
     @abstractmethod
-    def dumps(self, obj: Any, **kwargs) -> T:
-        self.encoder.encode(self.deconstructor.as_interm(obj))
+    def encode(self, obj: IntermType, **kwargs) -> T: ...
+
+    @abstractmethod
+    def deconstruct(self, obj: Any, **kwargs) -> IntermType: ...
+
+    @abstractmethod
+    def dumps(self, obj: Any, **kwargs) -> T: ...
 
 
 class AbstractDeserializer(ABC, Generic[T, IntermType]):
@@ -82,8 +94,13 @@ class AbstractDeserializer(ABC, Generic[T, IntermType]):
     def __call__(self, wrapped: T) -> Callable[[T], T]: ...
 
     @abstractmethod
-    def loads(self, data: T, obj: type[Any], **kwargs) -> Any:
-        self.constructor.from_interm(self.decoder.decode(data, **kwargs), obj)
+    def decode(self, data: T, **kwargs) -> IntermType: ...
+
+    @abstractmethod
+    def construct(self, data: IntermType, obj: type[Any], **kwargs) -> Any: ...
+
+    @abstractmethod
+    def loads(self, data: T, obj: type[Any], **kwargs) -> Any: ...
 
 
 class AbstractSerDe(ABC, Generic[IntermType, A, B]):
@@ -92,11 +109,20 @@ class AbstractSerDe(ABC, Generic[IntermType, A, B]):
 
     def __call__(self, wrapped: T) -> Callable[[T], T]: ...
 
-    def loads(self, data: A, obj: type[Any], **kwargs) -> Any:
-        self.deserializer.loads(data, obj, **kwargs)
+    @abstractmethod
+    def loads(self, data: A, obj: type[Any], **kwargs) -> Any: ...
 
     @abstractmethod
-    def _to(self, obj: Any) -> B: ...
+    def decode(self, data: A, **kwargs) -> IntermType: ...
 
     @abstractmethod
-    def _from(self, data: B, **kwargs) -> IntermType: ...
+    def construct(self, data: IntermType, obj: type[Any], **kwargs) -> Any: ...
+
+    @abstractmethod
+    def deconstruct(self, obj: Any) -> IntermType: ...
+
+    @abstractmethod
+    def encode(self, obj: IntermType, **kwargs) -> B: ...
+
+    @abstractmethod
+    def dumps(self, obj: Any, **kwargs) -> B: ...
