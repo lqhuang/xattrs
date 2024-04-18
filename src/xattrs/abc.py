@@ -1,56 +1,102 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from xattrs._compat.typing import Any, Callable, Generic
 
 from abc import ABC, abstractmethod
 
-T = TypeVar("T")
-IntermType = TypeVar("IntermType")  # interchange format / intermediary / bridge
-PyObject = TypeVar("PyObject", Any)  # including dataclass, built-in types etc.
+from xattrs.typing import A, B, ConstructHook, DeconstructHook, IntermType, T
+
+###############################################################################
 
 
-class AbstractSerDe(ABC, Generic[T]):
-    deserialize: AbstractDeserializer[T]
-    serialize: AbstractSerializer[T]
+class AbstractConverter(ABC, Generic[IntermType]):
+    constructor: AbstractConstructor[IntermType]
+    deconstrucor: AbstractDeconstructor[IntermType]
+
+
+class AbstractConstructor(ABC, Generic[IntermType]):
+    def __call__(self, wrapped: T) -> Callable[[T], T]: ...
 
     @abstractmethod
-    def _from(self, data: T) -> PyObject: ...
+    def register_hook(self, Cls: type[Any], func: ConstructHook[Any]) -> Any: ...
 
     @abstractmethod
-    def _to(self, obj: PyObject) -> T: ...
+    def from_interm(self, data: IntermType, Cls: type[Any]) -> Any: ...
 
 
-class AbstractDeserializer(ABC, Generic[T]):
+class AbstractDeconstructor(ABC, Generic[IntermType]):
+    def __call__(self, wrapped: T) -> Callable[[T], T]: ...
+
     @abstractmethod
-    def __call__(self, data: T, obj: type[PyObject], **kwargs) -> PyObject: ...
+    def register_hook(
+        self, Cls: type[Any], func: DeconstructHook[Any]
+    ) -> IntermType: ...
 
-
-class AbstractSerializer(ABC, Generic[T]):
     @abstractmethod
-    def __call__(self, data: T) -> PyObject: ...
+    def as_interm(self, obj: Any) -> IntermType: ...
 
-
-class AbstractConverter(ABC, Generic[IntermType, PyObject]):
-    constructor: AbstractConstructor[IntermType, PyObject]
-    deconstructor: AbstractDeconstructor[PyObject, IntermType]
-
-
-class AbstractConstructor(ABC, Generic[IntermType, PyObject]):
     @abstractmethod
-    def __call__(self, data: IntermType) -> PyObject:
-        pass
+    def to(self, obj: Any) -> IntermType: ...
 
 
-class AbstractDeconstructor(ABC, Generic[PyObject, IntermType]):
-    @abstractmethod
-    def __call__(self, obj: PyObject) -> IntermType: ...
+###############################################################################
+
+
+class AbstractCodec(ABC, Generic[IntermType, A, B]):
+    encoder: AbstractEncoder[IntermType, A]
+    decoder: AbstractDecoder[B, IntermType]
 
 
 class AbstractEncoder(ABC, Generic[IntermType, T]):
+    def __call__(self, wrapped: T) -> Callable[[T], T]: ...
+
     @abstractmethod
-    def __call__(self, data: IntermType) -> T: ...
+    def encode(self, data: IntermType) -> T: ...
 
 
 class AbstractDecoder(ABC, Generic[T, IntermType]):
+    def __call__(self, wrapped: T) -> Callable[[T], T]: ...
+
     @abstractmethod
-    def __call__(self, data: T) -> IntermType: ...
+    def decode(self, data: T, **kwargs) -> IntermType: ...
+
+
+###############################################################################
+
+
+class AbstractSerializer(ABC, Generic[IntermType, T]):
+    deconstructor: AbstractDeconstructor[IntermType]
+    encoder: AbstractEncoder[IntermType, T]
+
+    def __call__(self, wrapped: T) -> Callable[[T], T]: ...
+
+    @abstractmethod
+    def dumps(self, obj: Any, **kwargs) -> T:
+        self.encoder.encode(self.deconstructor.as_interm(obj))
+
+
+class AbstractDeserializer(ABC, Generic[T, IntermType]):
+    constructor: AbstractConstructor[IntermType]
+    decoder: AbstractDecoder[T, IntermType]
+
+    def __call__(self, wrapped: T) -> Callable[[T], T]: ...
+
+    @abstractmethod
+    def loads(self, data: T, obj: type[Any], **kwargs) -> Any:
+        self.constructor.from_interm(self.decoder.decode(data, **kwargs), obj)
+
+
+class AbstractSerDe(ABC, Generic[IntermType, A, B]):
+    deserializer: AbstractDeserializer[A, IntermType]
+    serializer: AbstractSerializer[IntermType, B]
+
+    def __call__(self, wrapped: T) -> Callable[[T], T]: ...
+
+    def loads(self, data: A, obj: type[Any], **kwargs) -> Any:
+        self.deserializer.loads(data, obj, **kwargs)
+
+    @abstractmethod
+    def _to(self, obj: Any) -> B: ...
+
+    @abstractmethod
+    def _from(self, data: B, **kwargs) -> IntermType: ...
