@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-from typing import Any, AnyStr, TypeVar
+from xattrs._compat.typing import Any, AnyStr, Callable, TypeVar
 
+from datetime import datetime
 from enum import Enum
-from json import dumps, loads
+from json import dumps as _dumps
+from json import loads as _loads
 
-from xattrs.abc import (
-    AbstractDecoder,
-    AbstractDeserializer,
-    AbstractEncoder,
-    AbstractSerializer,
-)
-from xattrs.typing import XattrsInstance
+from xattrs.abc import AbstractDeserializer, AbstractSerializer
+from xattrs.constructor import Constructor
+from xattrs.deconstructor import Deconstructor
+from xattrs.deserializer import Deserializer
+from xattrs.serializer import Serializer
 
 __all__ = ["from_json", "to_json"]
 
@@ -38,7 +38,7 @@ __all__ = ["from_json", "to_json"]
 
 T = TypeVar("T")
 
-JsonPri = TypeVar("JsonPri", dict, list, tuple, str, int, float, bool, None)
+T_json = TypeVar("T_json", dict, list, tuple, str, int, float, bool, None)
 
 
 class JsonValue(Enum):
@@ -53,77 +53,68 @@ class JsonValue(Enum):
     Null = None
 
 
-class JsonEncoder(AbstractEncoder[str]):
-    """JSON encoder."""
+class JsonDeconstructor(Deconstructor[T_json]):
+    """JSON constructor."""
 
-    def __call__(self, value: Any) -> str:
-        """Encode the value to a JSON-compatible format."""
-        return dumps(value)
+    def _datetime_to_isoformat(self, value: datetime) -> str:
+        """Convert the value to an intermediate data types."""
+        raise value.isoformat()
 
 
-class JsonDecoder(AbstractDecoder[AnyStr]):
+class JsonConstructor(Constructor[T_json]):
     """JSON decoder."""
 
-    def decode(self, value: Any) -> Any:
-        """Decode the JSON-compatible value to the original format."""
-        return value
+    def _datetime_from_isoformat(self, value: str) -> datetime:
+        """Convert the value to a Python object."""
+        return datetime.fromisoformat(value)
 
 
-# Instance
-# or
-# Class
-#
-# required features:
-#
-# 1. Easy to customize
-# 2. Easy to extend
-# 3. be able to use in multiple threads / multiple processes
-# 4. be able to transform to another machine (remote) / reference tranparency
-# 5. immutable?
-#
-
-
-class JsonDeserializer(AbstractDeserializer[AnyStr]):
+class JsonDeserializer(Deserializer[AnyStr, T_json]):
     """JSON deserializer."""
 
-    def __call__(
-        self, data: AnyStr, obj: type[XattrsInstance], **kwargs
-    ) -> XattrsInstance:
+    def decode(self, data: AnyStr, **kwargs) -> T_json:
         """Deserialize the JSON string to an object."""
-        return loads(data)
+        return _loads(data)
 
 
-class JsonSerializer(AbstractSerializer[str]):
+class JsonSerializer(Serializer[T_json, str]):
     """JSON serializer."""
 
-    def __call__(self, obj: Any, **kwargs) -> str:
-        """Serialize the object to a JSON string."""
-        return dumps(obj)
+    def encode(self, obj: T_json, **kwargs) -> str:
+        """Serialize the object to a JSON-formatted string."""
+        return _dumps(obj)
 
 
-default_json_serializer = JsonDeserializer()
+default_json_serializer = JsonSerializer()
+default_json_deserializer = JsonDeserializer()
 
 
 def from_json(
     s: AnyStr,
-    obj: type[T],
+    cls: type[T],
     *,
-    deserializer: AbstractDeserializer[AnyStr] | None = None,
+    deserializer: AbstractDeserializer[AnyStr, T_json] | None = None,
     **kw,
 ) -> T:
     """Deserialize ``s`` (a ``str``, ``bytes`` or ``bytearray`` instance
     containing a JSON document) to a Python object.
     """
-    de = deserializer or default_json_serializer
-    return de(s, obj, **kw)
+    deserializer = deserializer or default_json_deserializer
+    loads = deserializer.loads
+    return loads(s, cls, **kw)
 
 
 def to_json(
     obj: Any,
     *,
-    serializer: AbstractSerializer[AnyStr] | None = None,
+    serializer: AbstractSerializer[T_json, str] | Callable[..., str] | None = None,
     **kw,
-) -> AnyStr:
+) -> str:
     """Serialize ``obj`` to a JSON-formatted ``str``."""
-    se = serializer or default_json_serializer
-    return se(obj, **kw)
+    if serializer is None:
+        dumps = default_json_serializer.dumps
+    elif isinstance(serializer, AbstractSerializer):
+        dumps = serializer.dumps
+    else:
+        dumps = serializer
+    return dumps(obj, **kw)
