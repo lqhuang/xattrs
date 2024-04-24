@@ -1,6 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-from xattrs._compat.typing import Any, AnyStr, Callable, TypeVar
+from xattrs._compat.typing import (
+    Any,
+    AnyStr,
+    Callable,
+    Concatenate,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 from datetime import datetime
 from enum import Enum
@@ -12,6 +20,7 @@ from xattrs.constructor import Constructor
 from xattrs.deconstructor import Deconstructor
 from xattrs.deserializer import Deserializer
 from xattrs.serializer import Serializer
+from xattrs.typing import P
 
 __all__ = ["from_json", "to_json"]
 
@@ -38,22 +47,22 @@ __all__ = ["from_json", "to_json"]
 
 T = TypeVar("T")
 
-T_json = TypeVar("T_json", dict, list, tuple, str, int, float, bool, None)
+Json = Union[dict, list, tuple, str, int, float, bool, None]
 
 
 class JsonValue(Enum):
     """JSON value."""
 
     Object = dict
-    Array = tuple | list
+    Array = list
     String = str
-    Number = int | float
+    Number = float
     TRUE = True
     FALSE = False
     Null = None
 
 
-class JsonDeconstructor(Deconstructor[T_json]):
+class JsonDeconstructor(Deconstructor[Json]):
     """JSON constructor."""
 
     def _datetime_to_isoformat(self, value: datetime) -> str:
@@ -61,7 +70,7 @@ class JsonDeconstructor(Deconstructor[T_json]):
         raise value.isoformat()
 
 
-class JsonConstructor(Constructor[T_json]):
+class JsonConstructor(Constructor[Json]):
     """JSON decoder."""
 
     def _datetime_from_isoformat(self, value: str) -> datetime:
@@ -69,18 +78,18 @@ class JsonConstructor(Constructor[T_json]):
         return datetime.fromisoformat(value)
 
 
-class JsonDeserializer(Deserializer[AnyStr, T_json]):
+class JsonDeserializer(Deserializer[AnyStr, Json]):
     """JSON deserializer."""
 
-    def decode(self, data: AnyStr, **kwargs) -> T_json:
+    def decode(self, data: AnyStr, **kwargs) -> Json:
         """Deserialize the JSON string to an object."""
         return _loads(data)
 
 
-class JsonSerializer(Serializer[T_json, str]):
+class JsonSerializer(Serializer[Json, str]):
     """JSON serializer."""
 
-    def encode(self, obj: T_json, **kwargs) -> str:
+    def encode(self, obj: Json, **kwargs) -> str:
         """Serialize the object to a JSON-formatted string."""
         return _dumps(obj)
 
@@ -93,7 +102,7 @@ def from_json(
     s: AnyStr,
     cls: type[T],
     *,
-    deserializer: AbstractDeserializer[AnyStr, T_json] | None = None,
+    deserializer: Optional[AbstractDeserializer[AnyStr, Json]] = None,
     **kw,
 ) -> T:
     """Deserialize ``s`` (a ``str``, ``bytes`` or ``bytearray`` instance
@@ -107,7 +116,9 @@ def from_json(
 def to_json(
     obj: Any,
     *,
-    serializer: AbstractSerializer[T_json, str] | Callable[..., str] | None = None,
+    serializer: Union[
+        AbstractSerializer[Json, str], Callable[Concatenate[Json, P], str], None
+    ] = None,
     **kw,
 ) -> str:
     """Serialize ``obj`` to a JSON-formatted ``str``."""

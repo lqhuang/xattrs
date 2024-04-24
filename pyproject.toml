@@ -107,6 +107,7 @@ include = '\.pyi?$'
 profile = "black"
 line_length = 88
 known_typing = [
+  "types",
   "typing",
   "typing_extensions",
   "collections.abc",
@@ -137,7 +138,6 @@ show_error_codes = true
 cache_fine_grained = true
 ## Advanced options
 warn_incomplete_stub = true
-new_type_inference = true
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md#main-pyright-config-options

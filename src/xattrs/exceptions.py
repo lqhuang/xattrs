@@ -19,7 +19,7 @@ class SingleDispatchError(DispatchError):
     """
 
 
-class SingleDispatchNotFoundError(SingleDispatchError):
+class HookNotFoundError(DispatchError):
     """
-    Raised when a hook for a type is not found from single dispatch register.
+    Raised when a hook for a type is not found from dispatch register.
     """

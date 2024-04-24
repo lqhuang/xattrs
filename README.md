@@ -18,6 +18,10 @@ Do we need a library to extend `dataclasses` to support more features?
 - [How to contribute](#how-to-contribute)
 - [License](#license)
 
+## Introduction
+
+"correct by construction" instead of "correct by schema"
+
 ## Installation
 
 ```console

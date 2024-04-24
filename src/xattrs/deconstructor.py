@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from xattrs._compat.typing import ClassVar, TypeVar, Union
+from xattrs._compat.typing import Any, ClassVar, TypeVar, Union
 
 from enum import Enum
 
 from xattrs.base import BaseDeconstructor
-from xattrs.typing import T_interm, T_pyobj
+from xattrs.typing import T_interm
 
 
 class DeconstructStrategy(Enum):
@@ -27,4 +27,4 @@ class DeconstructStrategy(Enum):
 class Deconstructor(BaseDeconstructor[T_interm]):
     """Default concrete deconstructor"""
 
-    def deconstruct(self, obj: T_pyobj) -> T_interm: ...
+    def deconstruct(self, obj: Any) -> T_interm: ...

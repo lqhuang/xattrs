@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
-from typing import *  # type: ignore
-from typing_extensions import __all__
+# ruff: noqa: F401, UP035
+from typing import *  # type: ignore # noqa: F403
+from typing import __all__
 
 from sys import version_info
 
