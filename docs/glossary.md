@@ -1,6 +1,21 @@
 # Glossary
 
-## construct
+> Encoding and serialization are the same thing—turning a data structure into a
+> string. Decoding and deserialization are the opposite process—turning a string
+> into a data structure. However, serialization also commonly refers to the
+> entire process of translating data structures to and from a more easily
+> readable format.
+>
+> To avoid confusion, this doc uses "serialization" when referring to the
+> overall process, and "encoding" and "decoding" when specifically referring to
+> those processes.
+>
+> Ref:
+>
+> 1. [Flutter: JSON and serialization](https://docs.flutter.dev/data-and-backend/serialization/json)
+> 2. [Encoding, Decoding, and Serialization](https://developer.apple.com/documentation/swift/encoding-decoding-and-serialization)
+>    - Serialize and deserialize instances of your types with implicit or
+>      customized encoding.
 
 ## deconstruct
 
