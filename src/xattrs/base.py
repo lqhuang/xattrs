@@ -98,8 +98,10 @@ class BaseDeserializer(AbstractDeserializer[T_proto, T_interm]):
 
 
 class BaseSerDe(AbstractSerDe[T_interm, T_interm, T_proto]):
-    deserializer: BaseDeserializer[T_proto, T_interm]
+    """Base serializer/deserializer."""
+
     serializer: BaseSerializer[T_interm, T_proto]
+    deserializer: BaseDeserializer[T_proto, T_interm]
 
     def loads(
         self, data: T_proto, obj: type[T_pyobj], **kwargs

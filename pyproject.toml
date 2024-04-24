@@ -163,6 +163,7 @@ ignore = [
   "PLR0913", # Too many statements
   "C408",
   "B027",    # Allow non-abstract empty methods in abstract base classes
+  "PLC0414", # Import alias does not rename original package
 ]
 
 fix = false
