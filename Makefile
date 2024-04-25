@@ -12,9 +12,12 @@ DIST_DIR := dist
 DOCS_DIR := docs
 
 PYTHON = ${VENV_DIR}/bin/python3
-PIP = ${VENV_DIR}/bin/pip3
+PIP    = ${VENV_DIR}/bin/pip3
 PYTEST = ${VENV_DIR}/bin/pytest
-
+MYPY   = ${VENV_DIR}/bin/mypy
+RUFF   = ${VENV_DIR}/bin/ruff
+BLACK  = ${VENV_DIR}/bin/black
+ISORT  = ${VENV_DIR}/bin/isort
 
 # -----------------------------------------------------------------------------
 .PHONY: bootstrap-venv bootstrap-dev bootstrap
@@ -35,6 +38,19 @@ bootstrap: bootstrap-venv bootstrap-dev
 build:
 	@echo "Building package"
 	$(PYTHON) -m build --sdist --wheel --outdir ${DIST_DIR}
+
+.PHONY: test
+test:
+	@echo "Running tests"
+	$(PYTEST) ${TEST_DIR}
+
+.PHONY: lint
+lint:
+	@echo "Running linters"
+	$(ISORT) .
+	$(BLACK) .
+	$(RUFF) . --ignore "F401,F811"
+	$(MYPY) .
 
 # -----------------------------------------------------------------------------
 .PHONY: docs live-docs

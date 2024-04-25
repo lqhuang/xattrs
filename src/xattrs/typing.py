@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
+# # mypy: disable-error-code="empty-body"
 from __future__ import annotations
 
 from types import GenericAlias, MappingProxyType
@@ -26,7 +27,7 @@ from attrs import AttrsInstance
 
 # copy from typeshed/stdlib/dataclasses.pyi
 class DataclassInstance(Protocol):
-    __dataclass_fields__: ClassVar[dict[str, Field]]
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
 
 
 XAttrsInstance = TypeVar("XAttrsInstance", AttrsInstance, DataclassInstance)
@@ -58,7 +59,7 @@ UnaryCallable: TypeAlias = Callable[Concatenate[T, P], R_co]  # Support at least
 BinaryCallable: TypeAlias = Callable[Concatenate[T1, T2, P], R_co]  # Support at least 2 arguments # fmt: skip
 CallableFacatory: TypeAlias = Callable[P1, Callable[P2, R_co]]
 
-TreeCallable: TypeAlias = Callable[[tuple], R_co]
+TreeCallable: TypeAlias = Callable[[tuple[Any]], R_co]
 GenericCallable: TypeAlias = Callable[..., R_co]
 
 
@@ -71,7 +72,6 @@ T_proto = TypeVar("T_proto", covariant=True)
 T_interm = TypeVar("T_interm")
 
 if TYPE_CHECKING:
-
     HookPredicate: TypeAlias = Callable[Concatenate[type[T], P], bool]
     HookFacatory: TypeAlias = Callable[Concatenate[type[T], P], Callable[..., T]]
     ConstructHook: TypeAlias = BinaryCallable[type[T1], T2, ..., T1]
@@ -80,7 +80,6 @@ if TYPE_CHECKING:
     Dispatchable = Union[
         type[T],
         HookPredicate[T, ...],
-        HookFacatory[T, ...],
     ]
 
 
@@ -89,8 +88,10 @@ class SingleDispatchCallable(Generic[T]):
 
     registry: MappingProxyType[Any, GenericCallable[T]]
 
-    def register(self, cls, func: GenericCallable[T]) -> GenericCallable[T]: ...
-    def dispatch(self, cls) -> GenericCallable[T]: ...
+    def register(
+        self, cls: Dispatchable[T], func: GenericCallable[T]
+    ) -> GenericCallable[T]: ...
+    def dispatch(self, cls: Dispatchable[T]) -> GenericCallable[T]: ...
     def _clear_cache(self) -> None: ...
     def __call__(self, /, *args: Any, **kwargs: Any) -> T: ...
 

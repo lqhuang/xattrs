@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import NoReturn
 from xattrs._compat.typing import (
     TYPE_CHECKING,
     Any,
@@ -22,8 +23,8 @@ if TYPE_CHECKING:
     from xattrs.typing import Dispatchable, Hook
 
 
-def _dispatch_not_found(**x):
-    raise NotImplementedError
+def _dispatch_not_found(**_) -> NoReturn:
+    raise HookNotFoundError("Hook not found. This raised by not found fallback hook.")
 
 
 _unary_hook_registry: dict[type[T], Callable[[Any], T]] = {

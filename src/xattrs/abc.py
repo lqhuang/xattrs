@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
+# mypy: disable-error-code="empty-body"
 from __future__ import annotations
 
 from types import MappingProxyType
@@ -139,7 +140,6 @@ class AbstractSerDe(ABC, Generic[T_contra, T_co, T_proto]):
 
 
 class AbstractDispatcher(ABC, Generic[T]):
-
     _registry: MappingProxyType[str, SingleDispatchCallable[T]]
 
     @abstractmethod

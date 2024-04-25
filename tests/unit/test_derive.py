@@ -49,7 +49,6 @@ def trait3(wrapped: _StrGen) -> _StrGen:
     ],
 )
 def test_derive__sequence(traits, expected_decorator):
-
     def wrapped():
         return "hello, world"
 

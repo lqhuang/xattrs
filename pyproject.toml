@@ -41,12 +41,11 @@ all = [
   "xattrs[cloudpickle]",
 ]
 test = [
-  'cloudpickle; python_implementation == "CPython"',
   "hypothesis",
   "pympler",
   "pytest>=4.3.0",
-  'mypy>=1.1.1; python_implementation == "CPython"',
-  'pytest-mypy-plugins; python_implementation == "CPython"',
+  'mypy>=1.1.1',
+  'pytest-mypy-plugins',
   "coverage[toml]",
 ]
 docs = [
@@ -139,6 +138,22 @@ cache_fine_grained = true
 ## Advanced options
 warn_incomplete_stub = true
 
+disable_error_code = ['empty-body']
+
+[[tool.mypy.overrides]]
+module = ["xattrs._compat.*", "xattrs.typing"]
+disable_error_code = ['empty-body']
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disable_error_code = ["no-untyped-def", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = "examples.*"
+disallow-untyped-defs = false
+
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md#main-pyright-config-options
 typeCheckingMode = "basic"
@@ -147,7 +162,16 @@ reportGeneralTypeIssues = false
 
 [tool.ruff]
 line-length = 88
+indent-width = 4
+fix = false
 
+# [tool.ruff.format]
+# docstring-code-format = true
+# docstring-code-line-length = "dynamic"
+# line-ending = "lf"
+# quote-style = "double"
+
+[tool.ruff.lint]
 # Enable rules:
 # Pyflakes (F), pycodestyle (E, W), pydocstyle (D), pyupgrade (UP),
 # flake8-bandit (S), flake8-bugbear (B), flake8-comprehensions (C4), flake8-datetimez (DTZ), flake8-pytest-style (PT)
@@ -166,7 +190,7 @@ ignore = [
   "PLC0414", # Import alias does not rename original package
 ]
 
-fix = false
+
 #  A list of check code prefixes to consider autofix-able.
 fixable = ["F", "E711", "UP", "B"]
 unfixable = [
@@ -176,10 +200,10 @@ unfixable = [
 
 ignore-init-module-imports = true
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # imported but unused
-"tests/**/*" = [
-  "PLR2004",
-  "S101",
-  "TID252",
-] # Tests can use magic values, assertions, and relative imports
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
