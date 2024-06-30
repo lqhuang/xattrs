@@ -5,7 +5,7 @@ from __future__ import annotations
 from types import MappingProxyType
 from xattrs._compat.typing import TYPE_CHECKING, Any, Callable, Generic
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from xattrs.typing import SingleDispatchCallable, T, T_co, T_contra, T_interm, T_proto
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 ###############################################################################
 
 
-class AbstractConstructor(ABC, Generic[T_interm]):
+class AbstractConstructor(Generic[T_interm]):
     def __call__(self, wrapped: T) -> T: ...
 
     @abstractmethod
@@ -24,10 +24,12 @@ class AbstractConstructor(ABC, Generic[T_interm]):
     ) -> ConstructHook[T, T_interm]: ...
 
     @abstractmethod
-    def construct(self, cls: type[T], data: T_interm, *arg, **kwargs) -> T: ...
+    def construct(
+        self, cls: type[T], data: T_interm, *arg: Any, **kwargs: Any
+    ) -> T: ...
 
 
-class AbstractDeconstructor(ABC, Generic[T_interm]):
+class AbstractDeconstructor(Generic[T_interm]):
     def __call__(self, wrapped: T) -> T: ...
 
     @abstractmethod
@@ -36,10 +38,10 @@ class AbstractDeconstructor(ABC, Generic[T_interm]):
     ) -> DeconstructHook[T_interm]: ...
 
     @abstractmethod
-    def deconstruct(self, obj: Any, *arg, **kwargs) -> T_interm: ...
+    def deconstruct(self, obj: Any, *arg: Any, **kwargs: Any) -> T_interm: ...
 
 
-class AbstractConverter(ABC, Generic[T_interm]):
+class AbstractConverter(Generic[T_interm]):
     constructor: AbstractConstructor[T_interm]
     deconstrucor: AbstractDeconstructor[T_interm]
 
@@ -57,21 +59,21 @@ class AbstractConverter(ABC, Generic[T_interm]):
 ###############################################################################
 
 
-class AbstractEncoder(ABC, Generic[T_contra, T_proto]):
+class AbstractEncoder(Generic[T_contra, T_proto]):
     def __call__(self, wrapped: T) -> T: ...
 
     @abstractmethod
-    def encode(self, data: T_contra, *arg, **kwargs) -> T_proto: ...
+    def encode(self, data: T_contra, *arg: Any, **kwargs: Any) -> T_proto: ...
 
 
-class AbstractDecoder(ABC, Generic[T_proto, T_co]):
+class AbstractDecoder(Generic[T_proto, T_co]):
     def __call__(self, wrapped: T) -> T: ...
 
     @abstractmethod
-    def decode(self, data: T_proto, *arg, **kwargs) -> T_co: ...
+    def decode(self, data: T_proto, *arg: Any, **kwargs: Any) -> T_co: ...
 
 
-class AbstractCodec(ABC, Generic[T_contra, T_co, T_proto]):
+class AbstractCodec(Generic[T_contra, T_co, T_proto]):
     encoder: AbstractEncoder[T_contra, T_proto]
     decoder: AbstractDecoder[T_proto, T_co]
 
@@ -79,67 +81,67 @@ class AbstractCodec(ABC, Generic[T_contra, T_co, T_proto]):
 ###############################################################################
 
 
-class AbstractSerializer(ABC, Generic[T_contra, T_proto]):
+class AbstractSerializer(Generic[T_contra, T_proto]):
     deconstructor: AbstractDeconstructor[T_contra]
     encoder: AbstractEncoder[T_contra, T_proto]
 
     def __call__(self, wrapped: T) -> T: ...
 
     @abstractmethod
-    def encode(self, obj: T_contra, *arg, **kwargs) -> T_proto: ...
+    def encode(self, obj: T_contra, *arg: Any, **kwargs: Any) -> T_proto: ...
 
     @abstractmethod
-    def deconstruct(self, obj: Any, *arg, **kwargs) -> T_contra: ...
+    def deconstruct(self, obj: Any, *arg: Any, **kwargs: Any) -> T_contra: ...  # type: ignore[misc]
 
     @abstractmethod
-    def dumps(self, obj: Any, *arg, **kwargs) -> T_proto: ...
+    def dumps(self, obj: Any, *arg: Any, **kwargs: Any) -> T_proto: ...
 
 
-class AbstractDeserializer(ABC, Generic[T_proto, T_co]):
+class AbstractDeserializer(Generic[T_proto, T_co]):
     constructor: AbstractConstructor[T_co]
     decoder: AbstractDecoder[T_proto, T_co]
 
     def __call__(self, wrapped: T) -> T: ...
 
     @abstractmethod
-    def decode(self, data: T_proto, *arg, **kwargs) -> T_co: ...
+    def decode(self, data: T_proto, *arg: Any, **kwargs: Any) -> T_co: ...
 
     @abstractmethod
-    def construct(self, data: T_co, obj: type[T], *arg, **kwargs) -> T: ...
+    def construct(self, data: T_co, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...  # type: ignore[misc]
 
     @abstractmethod
-    def loads(self, data: T_proto, obj: type[T], *arg, **kwargs) -> T: ...
+    def loads(self, data: T_proto, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...
 
 
-class AbstractSerDe(ABC, Generic[T_contra, T_co, T_proto]):
+class AbstractSerDe(Generic[T_contra, T_co, T_proto]):
     serializer: AbstractSerializer[T_contra, T_proto]
     deserializer: AbstractDeserializer[T_proto, T_co]
 
     def __call__(self, wrapped: T) -> T: ...
 
     @abstractmethod
-    def loads(self, data: T_proto, obj: type[T], *arg, **kwargs) -> T: ...
+    def loads(self, data: T_proto, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...
 
     @abstractmethod
-    def decode(self, data: T_proto, *arg, **kwargs) -> T_co: ...
+    def decode(self, data: T_proto, *arg: Any, **kwargs: Any) -> T_co: ...
 
     @abstractmethod
-    def construct(self, data: T_co, obj: type[T], *arg, **kwargs) -> T: ...
+    def construct(self, data: T_co, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...  # type: ignore[misc]
 
     @abstractmethod
-    def deconstruct(self, obj: Any, *arg, **kwargs) -> T_contra: ...
+    def deconstruct(self, obj: Any, *arg: Any, **kwargs: Any) -> T_contra: ...  # type: ignore[misc]
 
     @abstractmethod
-    def encode(self, obj: T_contra, *arg, **kwargs) -> T_proto: ...
+    def encode(self, obj: T_contra, *arg: Any, **kwargs: Any) -> T_proto: ...
 
     @abstractmethod
-    def dumps(self, obj: Any, *arg, **kwargs) -> T_proto: ...
+    def dumps(self, obj: Any, *arg: Any, **kwargs: Any) -> T_proto: ...
 
 
 ###############################################################################
 
 
-class AbstractDispatcher(ABC, Generic[T]):
+class AbstractDispatcher(Generic[T]):
     _registry: MappingProxyType[str, SingleDispatchCallable[T]]
 
     @abstractmethod

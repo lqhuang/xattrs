@@ -43,8 +43,9 @@ all = [
 test = [
   "hypothesis",
   "pympler",
-  "pytest>=4.3.0",
-  'mypy>=1.1.1',
+  "pytest",
+  "pytest-cov",
+  'mypy',
   'pytest-mypy-plugins',
   "coverage[toml]",
 ]
@@ -99,7 +100,6 @@ toplevel = ["xattrs"]
 ## Formatter
 [tool.black]
 line-length = 88
-target-version = ['py310']
 include = '\.pyi?$'
 
 [tool.isort]
@@ -126,19 +126,20 @@ sections = [
 [tool.mypy]
 ## doc: https://mypy.readthedocs.io/en/stable/config_file.html
 strict = true
+
 ## Miscellaneous
 warn_unused_configs = true
 ## Configuring error messages
 show_column_numbers = true
 show_error_context = true
 show_error_codes = true
-# pretty = true  # disable for IDE parser; try add cli option in Makefile
+# pretty = true  # disable for IDE parser; try to add cli option in Makefile
 ## Incremental mode
 cache_fine_grained = true
 ## Advanced options
 warn_incomplete_stub = true
 
-disable_error_code = ['empty-body']
+disable_error_code = ['empty-body', 'no-untyped-def']
 
 [[tool.mypy.overrides]]
 module = ["xattrs._compat.*", "xattrs.typing"]
@@ -164,6 +165,8 @@ reportGeneralTypeIssues = false
 line-length = 88
 indent-width = 4
 fix = false
+
+typing-modules = ["xattrs._compat.typing"]
 
 # [tool.ruff.format]
 # docstring-code-format = true

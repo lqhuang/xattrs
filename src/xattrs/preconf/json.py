@@ -11,7 +11,6 @@ from xattrs._compat.typing import (
 )
 
 from datetime import datetime
-from enum import Enum
 from json import dumps as _dumps
 from json import loads as _loads
 
@@ -47,19 +46,7 @@ __all__ = ["from_json", "to_json"]
 
 T = TypeVar("T")
 
-Json = Union[dict, list, tuple, str, int, float, bool, None]
-
-
-class JsonValue(Enum):
-    """JSON value."""
-
-    Object = dict
-    Array = list
-    String = str
-    Number = float
-    TRUE = True
-    FALSE = False
-    Null = None
+Json = Union[dict, list, tuple, str, int, float, bool, None]  # type: ignore[type-arg]
 
 
 class JsonDeconstructor(Deconstructor[Json]):
@@ -67,7 +54,7 @@ class JsonDeconstructor(Deconstructor[Json]):
 
     def _datetime_to_isoformat(self, value: datetime) -> str:
         """Convert the value to an intermediate data types."""
-        raise value.isoformat()
+        return value.isoformat()
 
 
 class JsonConstructor(Constructor[Json]):
@@ -81,7 +68,7 @@ class JsonConstructor(Constructor[Json]):
 class JsonDeserializer(Deserializer[AnyStr, Json]):
     """JSON deserializer."""
 
-    def decode(self, data: AnyStr, **kwargs) -> Json:
+    def decode(self, data: AnyStr, **kwargs: Any) -> Any:
         """Deserialize the JSON string to an object."""
         return _loads(data)
 
@@ -89,7 +76,7 @@ class JsonDeserializer(Deserializer[AnyStr, Json]):
 class JsonSerializer(Serializer[Json, str]):
     """JSON serializer."""
 
-    def encode(self, obj: Json, **kwargs) -> str:
+    def encode(self, obj: Json, **kwargs: Any) -> str:
         """Serialize the object to a JSON-formatted string."""
         return _dumps(obj)
 
@@ -119,7 +106,7 @@ def to_json(
     serializer: Union[
         AbstractSerializer[Json, str], Callable[Concatenate[Json, P], str], None
     ] = None,
-    **kw,
+    **kwargs: Any,
 ) -> str:
     """Serialize ``obj`` to a JSON-formatted ``str``."""
     if serializer is None:
@@ -128,4 +115,4 @@ def to_json(
         dumps = serializer.dumps
     else:
         dumps = serializer
-    return dumps(obj, **kw)
+    return dumps(obj, **kwargs)

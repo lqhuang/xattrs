@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# # mypy: disable-error-code="empty-body"
 from __future__ import annotations
 
 from types import GenericAlias, MappingProxyType
@@ -20,9 +19,8 @@ from xattrs._compat.typing import (
 )
 
 from dataclasses import Field
-from sys import version_info
 
-from attrs import AttrsInstance
+from attrs import Attribute
 
 
 # copy from typeshed/stdlib/dataclasses.pyi
@@ -30,7 +28,13 @@ class DataclassInstance(Protocol):
     __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
 
 
-XAttrsInstance = TypeVar("XAttrsInstance", AttrsInstance, DataclassInstance)
+class AttrsInstance(Protocol):
+    __attrs_attrs__: ClassVar[dict[str, Attribute[Any]]]
+
+
+# class Serializable:
+#     ___attrs_serde__: ClassVar[dict[str, Field[Any]]]
+
 
 S = TypeVar("S", bound=str)
 
@@ -71,16 +75,12 @@ T_proto = TypeVar("T_proto", covariant=True)
 # Protocol compatible Python type
 T_interm = TypeVar("T_interm")
 
-if TYPE_CHECKING:
-    HookPredicate: TypeAlias = Callable[Concatenate[type[T], P], bool]
-    HookFacatory: TypeAlias = Callable[Concatenate[type[T], P], Callable[..., T]]
-    ConstructHook: TypeAlias = BinaryCallable[type[T1], T2, ..., T1]
-    DeconstructHook: TypeAlias = UnaryCallable[type[T], ..., T]
-    Hook = Union[ConstructHook[T, ...], DeconstructHook[T]]
-    Dispatchable = Union[
-        type[T],
-        HookPredicate[T, ...],
-    ]
+HookPredicate: TypeAlias = Callable[Concatenate[type[T], P], bool]
+HookFacatory: TypeAlias = Callable[Concatenate[type[T], P], Callable[..., T]]
+ConstructHook: TypeAlias = BinaryCallable[type[T1], T2, ..., T1]
+DeconstructHook: TypeAlias = UnaryCallable[type[T], ..., T]
+Hook = Union[ConstructHook[T, Any], DeconstructHook[T]]
+Dispatchable = Union[type[T], HookPredicate[T, ...]]
 
 
 class SingleDispatchCallable(Generic[T]):
@@ -89,27 +89,63 @@ class SingleDispatchCallable(Generic[T]):
     registry: MappingProxyType[Any, GenericCallable[T]]
 
     def register(
-        self, cls: Dispatchable[T], func: GenericCallable[T]
+        self, cls: type[T], func: GenericCallable[T]
     ) -> GenericCallable[T]: ...
-    def dispatch(self, cls: Dispatchable[T]) -> GenericCallable[T]: ...
+    def dispatch(self, cls: type[T]) -> GenericCallable[T]: ...
     def _clear_cache(self) -> None: ...
     def __call__(self, /, *args: Any, **kwargs: Any) -> T: ...
 
 
 class UnarySingleDispatchCallable(SingleDispatchCallable[T]):
     # fmt: off
-    def register(self, cls: type[T], func: UnaryCallable[T, ..., ...]) -> UnaryCallable[T, ..., ...]: ...
-    def dispatch(self, cls: type[T]) -> UnaryCallable[T, ..., ...]: ...
+    def register(self, cls: type[T], func: UnaryCallable[T, ..., T]) -> UnaryCallable[T, ..., T]: ...
+    def dispatch(self, cls: type[T]) -> UnaryCallable[T, ..., T]: ...
     # fmt: on
 
 
 class TreeSingleDispatchCallable(SingleDispatchCallable[T]):
-    def register(self, cls: type[T], func: TreeCallable) -> TreeCallable: ...
-    def dispatch(self, cls: type[T]) -> TreeCallable: ...
+    def register(self, cls: type[T], func: TreeCallable[T]) -> TreeCallable[T]: ...
+    def dispatch(self, cls: type[T]) -> TreeCallable[T]: ...
 
 
-class PredicateSingleDispatchCallable(SingleDispatchCallable[T]):
+class PredicateSingleDispatchCallable:
     # fmt: off
     def register(self, pred: PredCallable[P], func: GenericCallable[T]) -> GenericCallable[T]: ...
     def dispatch(self, pred: PredCallable[P]) -> GenericCallable[T]: ...
     # fmt: on
+
+
+class Serializer(Protocol):
+    """
+    Interface for custom class serializer.
+
+    This protocol is intended to be used for custom class serializer.
+
+    >>> from datetime import datetime
+    >>>
+    >>> class MySerializer(Serializer):
+    ...     @dispatch
+    ...     def serialize(self, value: datetime) -> str:
+    ...         return value.strftime("%d/%m/%y")
+    """
+
+    def serialize(self, value: Any) -> Any:
+        pass
+
+
+class Deserializer(Protocol):
+    """
+    Interface for custom class deserializer.
+
+    This protocol is intended to be used for custom class deserializer.
+
+    >>> from datetime import datetime
+    >>>
+    >>> class MyDeserializer(Deserializer):
+    ...     @dispatch
+    ...     def deserialize(self, cls: type[datetime], value: Any) -> datetime:
+    ...         return datetime.strptime(value, "%d/%m/%y")
+    """
+
+    def deserialize(self, cls: Any, value: Any) -> Any:
+        pass
