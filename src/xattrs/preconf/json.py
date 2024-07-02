@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
+import types
 from xattrs._compat.typing import (
     Any,
     AnyStr,
@@ -46,7 +47,7 @@ __all__ = ["from_json", "to_json"]
 
 T = TypeVar("T")
 
-Json = Union[dict, list, tuple, str, int, float, bool, None]  # type: ignore[type-arg]
+Json = Union[dict, list, tuple, str, int, float, bool, types.NoneType]  # type: ignore[type-arg]
 
 
 class JsonDeconstructor(Deconstructor[Json]):

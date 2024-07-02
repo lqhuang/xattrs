@@ -1,4 +1,8 @@
-from xattrs import define, derive, frozen, dataclass, field
+# isort:skip_file
+from xattrs import dataclass, define, frozen, field
+from xattrs import asdict, astuple, astree
+from xattrs import derive
+
 from xattrs.preconf.json import (
     JsonDeserializer,
     JsonSerializer,

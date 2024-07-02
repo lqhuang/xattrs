@@ -1,22 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from typing import Callable, Mapping
+from typing import Mapping
 from xattrs._compat.typing import Any
 
 from copy import copy as shallowcopy
 from copy import deepcopy
-from dataclasses import fields as dataclass_fields
 from functools import partial
-
-from attrs import fields as attrs_fields
 
 from xattrs._types import _ATOMIC_TYPES
 from xattrs._uni import (
-    _is_attrs_instance,
-    _is_dataclass_instance,
-    _is_decorated_instance,
     _get_fields_func,
+    _is_decorated_instance,
 )
 
 __all__ = (
@@ -25,18 +20,26 @@ __all__ = (
 )
 
 
-def asdict(inst: Any, *, dict_factory=dict, deconstructor=None, copy=deepcopy) -> Any:
+def asdict(
+    inst: Any,
+    *,
+    dict_factory: type[Mapping] = dict,
+    key_serializer=None,
+    value_serializer=None,
+    copy=deepcopy,
+) -> Any:
     """
     Return the fields of a dataclass or attrs instance as a new dictionary mapping
     field names to field values.
     """
-    if not _is_decorated_instance(inst):
-        raise TypeError("asdict() should be called on dataclass or attrs instances")
-    return _asdict_inner(inst, dict_factory, copy)
+    return _asdict_inner(inst, dict_factory, key_serializer, value_serializer, copy)
 
 
-def _asdict_inner(inst: Any, dict_factory, copy):  # noqa: PLR0911, PLR0912
+def _asdict_inner(
+    inst: Any, dict_factory, key_serializer, value_serializer, copy
+):  # noqa: PLR0911, PLR0912
     cls = type(inst)
+    args = (key_serializer, value_serializer, copy)
 
     if cls in _ATOMIC_TYPES:
         return inst
@@ -45,33 +48,36 @@ def _asdict_inner(inst: Any, dict_factory, copy):  # noqa: PLR0911, PLR0912
         _fileds = _get_fields_func(inst)
         if dict_factory is dict:
             return {
-                f.name: _asdict_inner(getattr(inst, f.name), dict, copy)
+                f.name: _asdict_inner(getattr(inst, f.name), dict, *args)
                 for f in _fileds(inst)
             }
         else:
             result = []
             for f in _fileds(inst):
-                value = _asdict_inner(getattr(inst, f.name), dict_factory, copy)
+                value = _asdict_inner(getattr(inst, f.name), dict_factory, *args)
                 result.append((f.name, value))
             return dict_factory(result)
     elif isinstance(inst, tuple) and hasattr(inst, "_fields"):
         # instance is a namedtuple.
         # keep namedtuple instances as they are, then recurse into their fields.
-        return cls(*(_asdict_inner(v, dict_factory, copy) for v in inst))
+        return cls(*(_asdict_inner(v, dict_factory, *args) for v in inst))
     elif isinstance(inst, (list, tuple)):
-        return cls(_asdict_inner(v, dict_factory, copy) for v in inst)
+        return cls(_asdict_inner(v, dict_factory, *args) for v in inst)
     elif isinstance(inst, dict):
         if hasattr(cls, "default_factory"):
             # inst is a defaultdict, which has a different constructor from
             # dict as it requires the default_factory as its first arg.
             result = cls.default_factory  # type: ignore
             for k, v in inst.items():
-                result[_asdict_inner(k, dict_factory, copy)] = _asdict_inner(
-                    v, dict_factory, copy
+                result[_asdict_inner(k, dict_factory, *args)] = _asdict_inner(
+                    v, dict_factory, *args
                 )
             return result
         return cls(
-            (_asdict_inner(k, dict_factory, copy), _asdict_inner(v, dict_factory, copy))
+            (
+                _asdict_inner(k, dict_factory, *args),
+                _asdict_inner(v, dict_factory, *args),
+            )
             for k, v in inst.items()
         )
     else:

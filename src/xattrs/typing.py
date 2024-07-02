@@ -1,15 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from types import GenericAlias, MappingProxyType
+from types import MappingProxyType
 from xattrs._compat.typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
     Concatenate,
     Generic,
-    Optional,
     ParamSpec,
     Protocol,
     TypeAlias,
@@ -69,7 +67,7 @@ GenericCallable: TypeAlias = Callable[..., R_co]
 
 ######## Framework specific types ########
 # Generic for final protocol type
-T_proto = TypeVar("T_proto", covariant=True)
+T_proto = TypeVar("T_proto", covariant=True)  # noqa: PLC0105
 # interchange datatype / intermediary / bridge
 # Protocol-aware type
 # Protocol compatible Python type

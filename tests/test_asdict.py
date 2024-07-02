@@ -10,7 +10,7 @@ from attrs import frozen
 from hypothesis import given
 from hypothesis import strategies as st
 
-from xattrs._asdict import asdict
+from xattrs._serde.dict import asdict
 
 MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)

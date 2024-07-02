@@ -6,7 +6,9 @@ from xattrs._compat.typing import TYPE_CHECKING, Callable
 from attr import dataclass
 from attrs import define, frozen, mutable, field
 
-from xattrs._asdict import asdict
+from xattrs._serde.dict import asdict
+from xattrs._serde.tuple import astuple
+from xattrs._serde.tree import astree
 
 if TYPE_CHECKING:
     from xattrs.typing import Decorator, P, R_co
@@ -14,8 +16,10 @@ if TYPE_CHECKING:
 
 __all__ = (
     "derive",
-    # from ._asdict module
+    # from ._serde module
     "asdict",
+    "astuple",
+    "astree",
     # re-export from attrs
     "dataclass",
     "define",

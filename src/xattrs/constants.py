@@ -24,15 +24,18 @@ COBOL_CASE = "COBOL-CASE"
 TRAIN_CASE = "Train-Case"
 
 ## Global specific configuration
-
 deny_unknown_fields = "deny_unknown_fields"
 
 ### New type (as new type)
 NEW_TYPE = "new_type"
 
 ## Field specific configuration
-
 ALIAS = "alias"
+ALIASES = "aliases"
+"""
+Duplicate of the original field, may be repeated to specify multiple aliases
+"""
+
 
 SKIP = "skip"
 SKIP_DE = "skip_de"
@@ -44,8 +47,3 @@ SKIP_IF_EMPTY = "skip_if_empty"
 
 SER_NAME = "ser_alias"
 DE_NAME = "de_alias"
-
-"""
-Duplicate of the original field, may be repeated to specify multiple aliases
-"""
-ALIASES = "aliases"
