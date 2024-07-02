@@ -36,7 +36,9 @@ def asdict(inst: Any, *, dict_factory=dict, deconstructor=None, copy=deepcopy) -
 
 
 def _asdict_inner(inst: Any, dict_factory, copy):  # noqa: PLR0911, PLR0912
-    if type(inst) in _ATOMIC_TYPES:
+    cls = type(inst)
+
+    if cls in _ATOMIC_TYPES:
         return inst
     elif _is_decorated_instance(inst):
         # fast path for the common case of a dataclass / attrs instance
@@ -55,20 +57,20 @@ def _asdict_inner(inst: Any, dict_factory, copy):  # noqa: PLR0911, PLR0912
     elif isinstance(inst, tuple) and hasattr(inst, "_fields"):
         # instance is a namedtuple.
         # keep namedtuple instances as they are, then recurse into their fields.
-        return type(inst)(*(_asdict_inner(v, dict_factory, copy) for v in inst))
+        return cls(*(_asdict_inner(v, dict_factory, copy) for v in inst))
     elif isinstance(inst, (list, tuple)):
-        return type(inst)(_asdict_inner(v, dict_factory, copy) for v in inst)
+        return cls(_asdict_inner(v, dict_factory, copy) for v in inst)
     elif isinstance(inst, dict):
-        if hasattr(type(inst), "default_factory"):
+        if hasattr(cls, "default_factory"):
             # inst is a defaultdict, which has a different constructor from
             # dict as it requires the default_factory as its first arg.
-            result = type(inst).default_factory  # type: ignore
+            result = cls.default_factory  # type: ignore
             for k, v in inst.items():
                 result[_asdict_inner(k, dict_factory, copy)] = _asdict_inner(
                     v, dict_factory, copy
                 )
             return result
-        return type(inst)(
+        return cls(
             (_asdict_inner(k, dict_factory, copy), _asdict_inner(v, dict_factory, copy))
             for k, v in inst.items()
         )

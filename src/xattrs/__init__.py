@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from xattrs._compat.typing import Callable, TYPE_CHECKING
+from xattrs._compat.typing import TYPE_CHECKING, Callable
+
+from attr import dataclass
+from attrs import define, frozen, mutable, field
 
 from xattrs._asdict import asdict
-
-# from xattrs.dataclasses import dataclass, define, frozen, mutable
 
 if TYPE_CHECKING:
     from xattrs.typing import Decorator, P, R_co
@@ -15,12 +16,12 @@ __all__ = (
     "derive",
     # from ._asdict module
     "asdict",
+    # re-export from attrs
+    "dataclass",
+    "define",
+    "mutable",
+    "frozen",
 )
-# # from .dataclasses module
-# "dataclass",
-# "define",
-# "mutable",
-# "frozen",
 
 
 def derive(*traits: Decorator[P, R_co]) -> Decorator[P, R_co]:

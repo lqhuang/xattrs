@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import pytest
 from attrs import frozen
-from hypothesis import assume, given
+from hypothesis import given
 from hypothesis import strategies as st
 
 from xattrs._asdict import asdict
@@ -16,8 +16,8 @@ MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
 
 
-@pytest.fixture(scope="session", name="A")
-def _A():
+@pytest.fixture(scope="session")
+def A():
     """
     Return a attrs class
     """
@@ -30,8 +30,8 @@ def _A():
     return A
 
 
-@pytest.fixture(scope="session", name="D")
-def _D():
+@pytest.fixture(scope="session")
+def D():
     """
     Return a dataclass class
     """
