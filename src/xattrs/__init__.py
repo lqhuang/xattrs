@@ -1,16 +1,26 @@
-# SPDX-FileCopyrightText: 2023-present Lanqing Huang <lqhuang@outlook.com>
-#
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from xattrs._compat.typing import Callable
+from xattrs._compat.typing import Callable, TYPE_CHECKING
 
-from attrs import define as define
-from attrs import frozen as frozen
+from xattrs._asdict import asdict
 
-from xattrs.typing import Decorator, P, R_co
+# from xattrs.dataclasses import dataclass, define, frozen, mutable
 
-__all__ = ["define", "frozen", "derive"]
+if TYPE_CHECKING:
+    from xattrs.typing import Decorator, P, R_co
+
+
+__all__ = (
+    "derive",
+    # from ._asdict module
+    "asdict",
+)
+# # from .dataclasses module
+# "dataclass",
+# "define",
+# "mutable",
+# "frozen",
 
 
 def derive(*traits: Decorator[P, R_co]) -> Decorator[P, R_co]:
