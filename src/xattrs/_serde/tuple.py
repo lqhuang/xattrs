@@ -7,7 +7,7 @@ from copy import deepcopy
 from functools import partial
 
 from xattrs._types import _ATOMIC_TYPES
-from xattrs._uni import _is_decorated_instance, _get_fields_func
+from xattrs._uni import _is_attrs_like_instance, _get_fields_func
 
 
 def astuple(
@@ -24,15 +24,15 @@ def astuple(
     return _astuple_inner(inst, tuple_factory, key_serializer, value_serializer, copy)
 
 
-def _astuple_inner(
+def _astuple_inner(  # noqa: PLR0911, PLR0912
     inst, tuple_factory, key_serializer, value_serializer, copy
-):  # noqa: PLR0911, PLR0912
+):
     args = (key_serializer, value_serializer, copy)
     cls = type(inst)
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_decorated_instance(inst):
+    elif _is_attrs_like_instance(inst):
         _fileds = _get_fields_func(inst)
 
         result = []

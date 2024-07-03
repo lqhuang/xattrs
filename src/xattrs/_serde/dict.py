@@ -11,7 +11,7 @@ from functools import partial
 from xattrs._types import _ATOMIC_TYPES
 from xattrs._uni import (
     _get_fields_func,
-    _is_decorated_instance,
+    _is_attrs_like_instance,
 )
 
 __all__ = (
@@ -35,15 +35,15 @@ def asdict(
     return _asdict_inner(inst, dict_factory, key_serializer, value_serializer, copy)
 
 
-def _asdict_inner(
+def _asdict_inner(  # noqa: PLR0911, PLR0912
     inst: Any, dict_factory, key_serializer, value_serializer, copy
-):  # noqa: PLR0911, PLR0912
+):
     cls = type(inst)
     args = (key_serializer, value_serializer, copy)
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_decorated_instance(inst):
+    elif _is_attrs_like_instance(inst):
         # fast path for the common case of a dataclass / attrs instance
         _fileds = _get_fields_func(inst)
         if dict_factory is dict:

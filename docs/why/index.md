@@ -41,5 +41,3 @@ def asdict(
 ```
 
 xattrs keep `value_serializer`
-
-`value_serializer`

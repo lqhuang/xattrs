@@ -3,12 +3,13 @@ from __future__ import annotations
 
 from xattrs._compat.typing import Any, Callable
 
-from dataclasses import MISSING
+from dataclasses import MISSING, Field
 from dataclasses import fields as dataclass_fields
-from dataclasses import is_dataclass
 
-from attrs import NOTHING, AttrsInstance
+
+from attrs import NOTHING, AttrsInstance, Attribute
 from attrs import fields as attrs_fields
+from attr._make import _CountingAttr
 
 _ATTRS_ATTRS = "__attrs_attrs__"
 _DATACLASS_FIELDS = "__dataclass_fields__"
@@ -24,7 +25,7 @@ def _is_dataclass_instance(inst: Any) -> bool:
     return hasattr(type(inst), _DATACLASS_FIELDS)
 
 
-def _is_decorated_instance(inst: Any) -> bool:
+def _is_attrs_like_instance(inst: Any) -> bool:
     """Return True the object is an xattrs instance."""
     return _is_attrs_instance(inst) or _is_dataclass_instance(inst)
 
@@ -38,6 +39,8 @@ def _get_fields_func(inst: Any) -> Callable[[Any], tuple]:
         return dataclass_fields
 
 
-def has(cls: type) -> bool:
-    """Check whether **cls** is a class with `attrs` attributes or `dataclass` fields."""
-    return hasattr(cls, _ATTRS_ATTRS) or hasattr(cls, _DATACLASS_FIELDS)
+def _is_field_like_instance(inst: Any) -> bool:
+    if isinstance(inst, (Field, _CountingAttr, Attribute)):
+        return True
+    else:
+        return False

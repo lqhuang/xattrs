@@ -19,6 +19,7 @@ from xattrs._compat.typing import (
 from dataclasses import Field
 
 from attrs import Attribute
+from attr._make import _CountingAttr
 
 
 # copy from typeshed/stdlib/dataclasses.pyi
@@ -27,12 +28,11 @@ class DataclassInstance(Protocol):
 
 
 class AttrsInstance(Protocol):
-    __attrs_attrs__: ClassVar[dict[str, Attribute[Any]]]
+    __attrs_attrs__: ClassVar[tuple[str, Attribute[Any]]]
 
 
-# class Serializable:
-#     ___attrs_serde__: ClassVar[dict[str, Field[Any]]]
-
+AttrsLike = TypeVar("AttrsLike", DataclassInstance, AttrsInstance)
+AttributeLike = TypeVar("AttributeLike", Field[Any], Attribute[Any], _CountingAttr)
 
 S = TypeVar("S", bound=str)
 
