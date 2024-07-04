@@ -1,30 +1,35 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
+from xattrs._compat.typing import Callable
 
 from dataclasses import Field, asdict, dataclass
 
 from attr._make import _CountingAttr
 
-from xattrs._types import CaseConvention
-from xattrs.typing import AttributeLike
+from xattrs._typing import AttributeLike
+from xattrs.typing import CaseConvention
+
+# @dataclass(frozen=True, slots=True)
+# class AliasOverride:
+#     ser
+CaseConverter = Callable[[str], str]
 
 
 @dataclass(frozen=True, slots=True)
 class _Metadata:
-    case_convention: CaseConvention | None = None
 
-    alias: str | None = None
+    alias_converter: CaseConvention | CaseConverter | None = None
     alias_ser: str | None = None
     alias_de: str | None = None
 
-    skip: bool = False
-    skip_ser: bool = False
-    skip_de: bool = False
+    exclude: bool = False
+    exclude_ser: bool = False
+    exclude_de: bool = False
 
-    skip_if: bool = False
-    skip_unless: bool = False
-    skip_if_none: bool = False
+    exclude_if: Callable | None = None
+    exclude_unless: bool | None = None
+    exclude_if_default: bool | None = None
 
     def __ror__(self, value: AttributeLike) -> AttributeLike:
         if isinstance(value, Field):

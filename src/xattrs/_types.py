@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import types
-from typing import Literal
 
 # Copied from CPYTHON/Lib/dataclasses.py (near line 225)
 #
@@ -30,23 +29,3 @@ _ATOMIC_TYPES = frozenset(
         property,
     }
 )
-
-SerdeStrategy = Literal["dict", "tuple", "tree", "auto_detect"]
-
-CaseConvention = Literal[
-    "lowercase",
-    "UPPERCASE",
-    "upper",
-    "uppercase",
-    "Capitalize",
-    "capitalize",
-    # easy to remember?
-    "PascalCase",
-    "camelCase",
-    "snake_case",
-    "CONST_CASE",
-    "Ada_Case",
-    "kebab-case",
-    "COBOL-CASE",
-    "Train-Case",
-]

@@ -4,19 +4,22 @@ from __future__ import annotations
 from xattrs._compat.typing import TYPE_CHECKING, Callable
 
 from attr import dataclass
-from attrs import define, frozen, mutable, field
+from attr._funcs import evolve
+from attr._make import fields
+from attrs import define, field, frozen, mutable
 
-from xattrs._serde.dict import asdict
-from xattrs._serde.tuple import astuple
-from xattrs._serde.tree import astree
+from xattrs._serde import serde
+from xattrs._struct_funcs.dict import asdict
+from xattrs._struct_funcs.tree import astree
+from xattrs._struct_funcs.tuple import astuple
 
 if TYPE_CHECKING:
-    from xattrs.typing import Decorator, P, R_co
+    from xattrs._typing import Decorator, P, R_co
 
 
 __all__ = (
     "derive",
-    # from ._serde module
+    # from ._struct_funcs module
     "asdict",
     "astuple",
     "astree",
@@ -25,7 +28,14 @@ __all__ = (
     "define",
     "mutable",
     "frozen",
+    "field",
+    # re-export funcs from attrs
+    "fields",
+    "evolve",
+    "replace",
 )
+
+replace = evolve
 
 
 def derive(*traits: Decorator[P, R_co]) -> Decorator[P, R_co]:

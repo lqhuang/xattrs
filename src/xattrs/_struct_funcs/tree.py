@@ -4,7 +4,7 @@ from __future__ import annotations
 from copy import copy as shallowcopy
 from copy import deepcopy
 from functools import partial
-from xattrs._compat.typing import Mapping
+from xattrs._compat.typing import Mapping, Any
 
 from xattrs._types import _ATOMIC_TYPES
 from xattrs._uni import _is_attrs_like_instance, _get_fields_func

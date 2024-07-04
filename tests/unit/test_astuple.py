@@ -10,7 +10,7 @@ from attrs import frozen
 from hypothesis import given
 from hypothesis import strategies as st
 
-from xattrs._serde.tree import astree
+from xattrs._struct_funcs.tuple import astuple
 
 MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
@@ -46,28 +46,28 @@ def D():
 
 class TestAsTuple:
     """
-    Tests for `astree`.
+    Tests for `astuple`.
     """
 
     @given(seq=st.sampled_from(SEQUENCE_TYPES))
     def test_attrs(self, A, seq):
-        acutal = astree(A(A(1, 2), A(3, 4)), tuple_factory=seq)
+        acutal = astuple(A(A(1, 2), A(3, 4)), tuple_factory=seq)
         expected = seq((seq((1, 2)), seq((3, 4))))
         assert acutal == expected
 
     @given(seq=st.sampled_from(SEQUENCE_TYPES))
     def test_dataclasses(self, D, seq):
-        acutal = astree(D(D("1", 2), D(3, "4")), tuple_factory=seq)
+        acutal = astuple(D(D("1", 2), D(3, "4")), tuple_factory=seq)
         expected = seq((seq(("1", 2)), seq((3, "4"))))
         assert acutal == expected
 
     def test_mixed_attrs_dataclass(self, A, D):
         actual = (("1", "2"), (3, 4))
-        expected = astree(A(A("1", "2"), D(3, 4)))
+        expected = astuple(A(A("1", "2"), D(3, 4)))
         assert actual == expected
 
         actual = (("1", 2), (3, "4"))
-        expected = astree(D(A("1", 2), D(3, "4")))
+        expected = astuple(D(A("1", 2), D(3, "4")))
         assert actual == expected
 
     def test_mapping(
@@ -78,11 +78,11 @@ class TestAsTuple:
         """
         contains mapping
         """
-        actual = astree(D(1, {"x": 2, "y": 3}))
-        expected = (1, (("x", 2), ("y", 3)))
+        actual = astuple(D(1, {"x": 2, "y": 3}))
+        expected = (1, {"x": 2, "y": 3})
         assert actual == expected
 
-        actual = astree(
+        actual = astuple(
             A(
                 1,
                 (A(2, 3), D(4, 5), {"x": "6", "y": "7"}),
@@ -90,6 +90,6 @@ class TestAsTuple:
         )
         expected = (
             1,
-            ((2, 3), (4, 5), (("x", "6"), ("y", "7"))),
+            ((2, 3), (4, 5), {"x": "6", "y": "7"}),
         )
         assert actual == expected
