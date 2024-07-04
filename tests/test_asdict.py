@@ -16,7 +16,7 @@ MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def A():
     """
     Return a attrs class
@@ -30,7 +30,7 @@ def A():
     return A
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def D():
     """
     Return a dataclass class

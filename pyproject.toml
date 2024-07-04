@@ -28,7 +28,7 @@ classifiers = [
 dependencies = ["attrs", "typing_extensions", "cattrs"]
 
 [project.optional-dependencies]
-yaml = ["strictyaml"]
+yaml = ["ruamel.yaml>0.18"]
 toml = ["tomlkit"]
 ujson = ["ujson"]
 msgpack = ["msgspec"]
