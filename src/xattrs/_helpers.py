@@ -6,6 +6,7 @@ from xattrs._compat.typing import Any
 from enum import Enum
 
 from xattrs._guards import is_enum
+from xattrs._typing import T
 
 
 def _enum_value(inst: Any, cls: type[Enum]):
@@ -18,3 +19,7 @@ def _enum_value(inst: Any, cls: type[Enum]):
             return value
     else:
         return cls(inst).value
+
+
+def _identity(value: T) -> T:
+    return value

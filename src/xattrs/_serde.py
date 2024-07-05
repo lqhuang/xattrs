@@ -108,16 +108,14 @@ def _process_serde(cls, **kwargs):
     return cls
 
 
-def _get_xattrs_serde(cls: Any) -> _XattrsSerde | None:
-    """Get the `_XattrsSerde` object."""
-    return getattr(cls, _XATTRS_SERDE, None)
+def _get_serde(obj: Any) -> _XattrsSerde | None:
+    """Get the `_XattrsSerde` object from class or instance."""
+    return getattr(type(obj), _XATTRS_SERDE, None)
 
 
-def _make_key_deconstructor(cls: Any) -> Callable[[str], str]:
+def _get_serde_kind(obj: Any) -> StructAs | None:
     """Make a key deconstructor."""
-
-    _serde = _get_xattrs_serde(cls)
-
-    key_transformer = _serde.name_converter
-
-    return key_deconstructor(key_transformer)
+    _serde = _get_serde(obj)
+    if _serde is None:
+        raise ValueError(f"Class {obj} is not decorated with `serde`.")
+    return _serde.kind

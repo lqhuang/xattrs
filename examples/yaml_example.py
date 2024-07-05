@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
-from attrs import field, frozen
+from attrs import define, field
 
-from xattrs import define, derive, field, serde
+from xattrs import asdict, serde
+from xattrs.preconf.json import to_json
 from xattrs.preconf.yaml import to_yaml
 
 
@@ -17,11 +20,21 @@ class Person:
         init=False, alias="full_name"
     )  # per field conf has higher priority
 
-    def __post_init__(self):
+    def __attrs_post_init__(self):
         self.full_name = f"{self.first_name} {self.last_name}"
 
 
-# Decoding a Person object
-person_obj = {"name": "John", "age": 25}
-decoded_person = Person(**person_obj)
-print(decoded_person)  # Output: Person(name='JOHN', age=25)
+if __name__ == "__main__":
+    data = {"first_name": "John", "last_name": "Lowe", "age": 25}
+    person = Person(**data)
+    print(person)
+    # Person(first_name='John', last_name='Lowe', age=25, full_name='John Lowe')
+    print(asdict(person))
+    # {'first-name': 'John', 'last-name': 'Lowe', 'age': 25, 'full-name': 'John Lowe'}
+    print(to_yaml(person))
+    # age: 25
+    # first-name: John
+    # full-name: John Lowe
+    # last-name: Lowe
+    print(to_json(person))
+    # {"first-name": "John", "last-name": "Lowe", "age": 25, "full-name": "John Lowe"}

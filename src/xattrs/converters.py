@@ -58,7 +58,7 @@ def to_const(value: str) -> str:
     return to_snake(value).upper()
 
 
-_CONVERTER_MAPPING: dict[CaseConvention, _ConverterType] = {
+_CASE_CONVERTER_MAPPING: dict[CaseConvention, _ConverterType] = {
     "lowercase": to_lower,
     "uppercase": to_upper,
     "UPPERCASE": to_upper,

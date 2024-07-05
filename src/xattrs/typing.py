@@ -14,7 +14,7 @@ from attrs import Attribute
 
 from xattrs._typing import T, T_co, T_contra
 
-StructAs = Literal["dict", "tuple", "tree"] | None
+StructAs = Literal["dict", "tuple", "tree"]
 
 # easy to remember?
 CaseConvention = Literal[

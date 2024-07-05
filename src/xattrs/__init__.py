@@ -9,9 +9,7 @@ from attr._make import fields
 from attrs import define, field, frozen, mutable
 
 from xattrs._serde import serde
-from xattrs._struct_funcs.dict import asdict
-from xattrs._struct_funcs.tree import astree
-from xattrs._struct_funcs.tuple import astuple
+from xattrs._struct_funcs import asdict, astree, astuple
 
 if TYPE_CHECKING:
     from xattrs._typing import Decorator, P, R_co
