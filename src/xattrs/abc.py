@@ -7,135 +7,57 @@ from xattrs._compat.typing import TYPE_CHECKING, Any, Callable, Generic
 
 from abc import abstractmethod
 
-from xattrs.typing import SingleDispatchCallable, T, T_co, T_contra, T_interm, T_proto
+from xattrs._typing import SingleDispatchCallable, T, T_co, T_contra, T_interm, T_proto
 
 if TYPE_CHECKING:
-    from xattrs.typing import ConstructHook, DeconstructHook, Dispatchable
-
-###############################################################################
+    from xattrs._typing import ConstructHook, DeconstructHook, Dispatchable
 
 
-class AbstractConstructor(Generic[T_interm]):
-    def __call__(self, wrapped: T) -> T: ...
+class AbstractSerializer(Generic[T_contra, T_co]):
+    """
+    Interface for custom class serializer.
 
-    @abstractmethod
-    def register_hook(
-        self, cls: Dispatchable[T], func: ConstructHook[T, T_interm]
-    ) -> ConstructHook[T, T_interm]: ...
+    This protocol is intended to be used for custom class serializer.
 
-    @abstractmethod
-    def construct(
-        self, cls: type[T], data: T_interm, *arg: Any, **kwargs: Any
+    >>> from datetime import datetime
+    >>>
+    >>> class MySerializer(Serializer):
+    ...     @dispatch
+    ...     def serialize(self, value: datetime) -> str:
+    ...         return value.strftime("%d/%m/%y")
+    """
+
+    def __call__(self, value: T_contra, *, inst=None, attr=None, **kwargs) -> T_co: ...
+
+
+class AbstractDeserializer(Generic[T_contra, T]):
+    """
+    Interface for custom class deserializer.
+
+    This protocol is intended to be used for custom class deserializer.
+
+    >>> from datetime import datetime
+    >>>
+    >>> class MyDeserializer(Deserializer):
+    ...     @dispatch
+    ...     def deserialize(self, cls: type[datetime], value: Any) -> datetime:
+    ...         return datetime.strptime(value, "%d/%m/%y")
+    """
+
+    def __call__(
+        self, value: T_contra, cls: type[T], *, inst=None, attr=None, **kwargs
     ) -> T: ...
 
 
-class AbstractDeconstructor(Generic[T_interm]):
-    def __call__(self, wrapped: T) -> T: ...
+class AbstractSerDe(Generic[T, T_proto, T_contra]):
+    serializer: AbstractSerializer[T, T_proto]
+    deserializer: AbstractDeserializer[T_contra, T_co]
 
-    @abstractmethod
-    def register_hook(
-        self, cls: Dispatchable[T], func: DeconstructHook[T_interm]
-    ) -> DeconstructHook[T_interm]: ...
+    def serialize(self, value: T, **kwargs) -> T_proto:
+        return self.serializer(value, **kwargs)
 
-    @abstractmethod
-    def deconstruct(self, obj: Any, *arg: Any, **kwargs: Any) -> T_interm: ...
-
-
-class AbstractConverter(Generic[T_interm]):
-    constructor: AbstractConstructor[T_interm]
-    deconstrucor: AbstractDeconstructor[T_interm]
-
-    @abstractmethod
-    def register_construct_hook(
-        self, cls: type[T], func: ConstructHook[T, T_interm]
-    ) -> ConstructHook[T, T_interm]: ...
-
-    @abstractmethod
-    def register_deconstruct_hook(
-        self, cls: type[T], func: DeconstructHook[T_interm]
-    ) -> DeconstructHook[T_interm]: ...
-
-
-###############################################################################
-
-
-class AbstractEncoder(Generic[T_contra, T_proto]):
-    def __call__(self, wrapped: T) -> T: ...
-
-    @abstractmethod
-    def encode(self, data: T_contra, *arg: Any, **kwargs: Any) -> T_proto: ...
-
-
-class AbstractDecoder(Generic[T_proto, T_co]):
-    def __call__(self, wrapped: T) -> T: ...
-
-    @abstractmethod
-    def decode(self, data: T_proto, *arg: Any, **kwargs: Any) -> T_co: ...
-
-
-class AbstractCodec(Generic[T_contra, T_co, T_proto]):
-    encoder: AbstractEncoder[T_contra, T_proto]
-    decoder: AbstractDecoder[T_proto, T_co]
-
-
-###############################################################################
-
-
-class AbstractSerializer(Generic[T_contra, T_proto]):
-    deconstructor: AbstractDeconstructor[T_contra]
-    encoder: AbstractEncoder[T_contra, T_proto]
-
-    def __call__(self, wrapped: T) -> T: ...
-
-    @abstractmethod
-    def encode(self, obj: T_contra, *arg: Any, **kwargs: Any) -> T_proto: ...
-
-    @abstractmethod
-    def deconstruct(self, obj: Any, *arg: Any, **kwargs: Any) -> T_contra: ...  # type: ignore[misc]
-
-    @abstractmethod
-    def dumps(self, obj: Any, *arg: Any, **kwargs: Any) -> T_proto: ...
-
-
-class AbstractDeserializer(Generic[T_proto, T_co]):
-    constructor: AbstractConstructor[T_co]
-    decoder: AbstractDecoder[T_proto, T_co]
-
-    def __call__(self, wrapped: T) -> T: ...
-
-    @abstractmethod
-    def decode(self, data: T_proto, *arg: Any, **kwargs: Any) -> T_co: ...
-
-    @abstractmethod
-    def construct(self, data: T_co, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...  # type: ignore[misc]
-
-    @abstractmethod
-    def loads(self, data: T_proto, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...
-
-
-class AbstractSerDe(Generic[T_contra, T_co, T_proto]):
-    serializer: AbstractSerializer[T_contra, T_proto]
-    deserializer: AbstractDeserializer[T_proto, T_co]
-
-    def __call__(self, wrapped: T) -> T: ...
-
-    @abstractmethod
-    def loads(self, data: T_proto, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...
-
-    @abstractmethod
-    def decode(self, data: T_proto, *arg: Any, **kwargs: Any) -> T_co: ...
-
-    @abstractmethod
-    def construct(self, data: T_co, obj: type[T], *arg: Any, **kwargs: Any) -> T: ...  # type: ignore[misc]
-
-    @abstractmethod
-    def deconstruct(self, obj: Any, *arg: Any, **kwargs: Any) -> T_contra: ...  # type: ignore[misc]
-
-    @abstractmethod
-    def encode(self, obj: T_contra, *arg: Any, **kwargs: Any) -> T_proto: ...
-
-    @abstractmethod
-    def dumps(self, obj: Any, *arg: Any, **kwargs: Any) -> T_proto: ...
+    def deserialize(self, value: T_contra, cls: type[T_co], **kwargs) -> T_co:
+        return self.deserializer(value, cls, **kwargs)
 
 
 ###############################################################################

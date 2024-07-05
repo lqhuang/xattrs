@@ -3,59 +3,11 @@ from __future__ import annotations
 
 from xattrs._compat.typing import TYPE_CHECKING, Any
 
-from xattrs.abc import (
-    AbstractConstructor,
-    AbstractConverter,
-    AbstractDeconstructor,
-    AbstractDeserializer,
-    AbstractSerDe,
-    AbstractSerializer,
-)
-from xattrs.typing import T, T_interm, T_proto
+from xattrs._typing import T, T_interm, T_proto
+from xattrs.abc import AbstractDeserializer, AbstractSerDe, AbstractSerializer
 
 if TYPE_CHECKING:
-    from xattrs.typing import ConstructHook, DeconstructHook, Dispatchable
-
-
-class BaseConstructor(AbstractConstructor[T_interm]):
-    """Base constructor."""
-
-    def construct(self, data: T_interm, cls: type[T]) -> T:
-        raise NotImplementedError
-
-
-class BaseDeconstructor(AbstractDeconstructor[T_interm]):
-    """Base deconstructor."""
-
-    def deconstruct(self, obj: T) -> T_interm:
-        raise NotImplementedError
-
-
-### Using `singledispatch` has a problem, it's difficult to mix in...
-# How can I mix in a class that already register a few methods of `singledispatch`?
-
-
-class BaseConverter(AbstractConverter[T_interm]):
-    """Base converter."""
-
-    def construct(self, data: T_interm, cls: type[T]) -> T:
-        raise NotImplementedError
-
-    def deconstruct(self, obj: T) -> T_interm:
-        raise NotImplementedError
-
-    def register_construct_hook(
-        self, cls: type[T], func: ConstructHook[T, T_interm]
-    ) -> None:
-        raise NotImplementedError
-
-    def register_deconstruct_hook(self, cls: type[T], func: DeconstructHook[T]) -> None:
-        raise NotImplementedError
-
-
-#
-#
-#
+    from xattrs._typing import ConstructHook, DeconstructHook, Dispatchable
 
 
 class BaseSerializer(AbstractSerializer[T_interm, T_proto]):
@@ -73,8 +25,6 @@ class BaseSerializer(AbstractSerializer[T_interm, T_proto]):
 
 class BaseDeserializer(AbstractDeserializer[T_proto, T_interm]):
     """Base deserializer."""
-
-    constructor: BaseConstructor[T_interm]
 
     def decode(self, data: T_proto, **kwargs) -> T_interm:
         raise NotImplementedError

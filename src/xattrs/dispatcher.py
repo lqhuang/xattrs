@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: BSD-3-Clause
-
 from __future__ import annotations
 
 from typing import NoReturn
@@ -23,21 +22,12 @@ if TYPE_CHECKING:
     from xattrs.typing import Dispatchable, Hook
 
 
-def _dispatch_not_found(**_) -> NoReturn:
+def _dispatch_not_found(_, **kwargs) -> NoReturn:
     raise HookNotFoundError("Hook not found. This raised by not found fallback hook.")
 
 
 _unary_hook_registry: dict[type[T], Callable[[Any], T]] = {
     # builtin types
-    bool: lambda x: bool(x),
-    int: lambda x: int(x),
-    float: lambda x: float(x),
-    complex: lambda x: complex(x),
-    str: lambda x: str(x),
-    bytes: lambda x: bytes(x),
-    bytearray: lambda x: bytearray(x),
-    memoryview: lambda x: memoryview(x),
-    type(None): lambda x: None,
     # error/exception types
     # warning types
 }
