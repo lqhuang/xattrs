@@ -34,14 +34,41 @@ if TYPE_CHECKING:
     AttrsLike = TypeVar("AttrsLike", DataclassInstance, AttrsInstance)
     AttributeLike = TypeVar("AttributeLike", Field[Any], Attribute[Any], _CountingAttr)
 
+    class _DataclassParams:
+        init: bool
+        repr: bool
+        eq: bool
+        order: bool
+        unsafe_hash: bool
+        frozen: bool
+        match_args: bool
+        kw_only: bool
+        slots: bool
+        weakref_slot: bool
+
+    class _AttrsParams:
+        init: bool
+        repr: bool
+        eq: bool
+        order: bool
+        unsafe_hash: bool
+        frozen: bool
+        match_args: bool
+        kw_only: bool
+        slots: bool
+        weakref_slot: bool
+
 else:
+    AttrsLike = Any
+    AttributeLike = Any
 
     class DataclassInstance(Protocol): ...
 
     class AttrsInstance(Protocol): ...
 
-    AttrsLike = Any
-    AttributeLike = Any
+    class _DataclassParams: ...
+
+    class _AttrsParams: ...
 
 
 S = TypeVar("S", bound=str)

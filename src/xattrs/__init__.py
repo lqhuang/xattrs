@@ -31,6 +31,8 @@ __all__ = (
     "fields",
     "evolve",
     "replace",
+    # re-export from xattrs
+    "serde",
 )
 
 replace = evolve

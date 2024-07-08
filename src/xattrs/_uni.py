@@ -1,34 +1,94 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from xattrs._compat.typing import Any, Callable
+from xattrs._compat.typing import Any, Callable, TypeGuard, cast, overload
 
 from dataclasses import MISSING, Field
 from dataclasses import fields as dataclass_fields
+from dataclasses import is_dataclass
 
 from attr._make import _CountingAttr
 from attrs import NOTHING, Attribute
 from attrs import fields as attrs_fields
 
-from xattrs._typing import AttrsLike
+from xattrs._typing import (
+    AttrsInstance,
+    AttrsLike,
+    DataclassInstance,
+    _AttrsParams,
+    _DataclassParams,
+)
 
 _ATTRS_ATTRS = "__attrs_attrs__"
 _DATACLASS_FIELDS = "__dataclass_fields__"
+_DATACLASS_PARAMS = "_dataclass_params__"
 
 
-def _is_attrs_instance(inst: Any) -> bool:
-    """Return True if the object is an `attrs` instance."""
+def _is_attrs_instance(inst: Any) -> TypeGuard[AttrsInstance]:
+    """Return True if the object is an instance of a attrs."""
     return hasattr(type(inst), _ATTRS_ATTRS)
 
 
-def _is_dataclass_instance(inst: Any) -> bool:
-    """Return True the object is a `dataclass` instance."""
+def _is_attrs_class(cls: type) -> TypeGuard[type[AttrsInstance]]:
+    """Returns True if object is an attrs class"""
+    return hasattr(cls, _ATTRS_ATTRS)
+
+
+def _is_attrs(obj: Any | type) -> TypeGuard[AttrsInstance | type[AttrsInstance]]:
+    """Returns True if object is an attrs or an instance of an attrs."""
+    cls = obj if isinstance(obj, type) else type(obj)
+    return _is_attrs_class(cls)
+
+
+def _is_dataclass_instance(inst: Any) -> TypeGuard[DataclassInstance]:
+    """Return True if the object is an instance of a dataclass."""
     return hasattr(type(inst), _DATACLASS_FIELDS)
 
 
-def _is_attrs_like_instance(inst: Any) -> bool:
-    """Return True the object is an xattrs instance."""
-    return _is_attrs_instance(inst) or _is_dataclass_instance(inst)
+def _is_dataclass_class(cls: type) -> TypeGuard[type[DataclassInstance]]:
+    """Returns True if object is a dataclass class"""
+    return hasattr(cls, _DATACLASS_FIELDS)
+
+
+def _is_dataclass(
+    obj: Any | type,
+) -> TypeGuard[DataclassInstance | type[DataclassInstance]]:
+    """Returns True if object is a dataclass or an instance of a dataclass."""
+    return is_dataclass(obj)
+
+
+def _is_dataclass_like(obj: Any | type) -> bool:
+    """Return True if the object is a dataclass like class or
+    a instance of a dataclass like class."""
+    return _is_dataclass(obj) or _is_attrs(obj)
+
+
+def _is_dataclass_like_instance(obj: Any) -> bool:
+    """Return True if the object is an instance of a dataclass like class."""
+    return _is_dataclass_instance(obj) or _is_attrs_instance(obj)
+
+
+@overload
+def _get_params(
+    obj: DataclassInstance | type[DataclassInstance],
+) -> _DataclassParams: ...
+
+
+@overload
+def _get_params(
+    obj: AttrsInstance | type[AttrsInstance],
+) -> _AttrsParams: ...
+
+
+def _get_params(obj: Any) -> _DataclassParams | _AttrsParams:
+    """Return the parameters of the dataclass-like instance."""
+    cls = obj if isinstance(obj, type) else type(obj)
+    if _is_attrs_class(cls):
+        raise NotImplementedError("attrs instance is not supported yet.")
+    elif is_dataclass(cls):
+        return getattr(cls, _DATACLASS_PARAMS)
+    else:
+        raise TypeError("The object is not a dataclass-like type.")
 
 
 def _get_fields_func(inst: Any) -> Callable[[Any], tuple]:
@@ -48,13 +108,23 @@ def _is_field_like_instance(inst: Any) -> bool:
         return False
 
 
-def _should_impl_dataclass(inst: Any) -> bool:
+def _should_impl_dataclass(cls: type) -> bool:
     """Return True if the object should implement the dataclass-like protocol."""
-    annotations = getattr(type(inst), "__annotations__", {})
-    ...
+    annotations = getattr(cls, "__annotations__", {})
+    return not _is_dataclass_like(cls)
 
 
 def _collect_fields(inst: AttrsLike) -> tuple:
     """Collect defined fields if the object has not yet been implemented as
     a dataclass-like class."""
     ...
+
+
+def _is_frozen(cls: Any) -> bool:
+    """Return True if the object is frozen."""
+    if _is_attrs_class(cls):
+        return not hasattr(cls, "__attrs_own_setattr__")
+    elif _is_dataclass_class(cls):
+        return cast(_DataclassParams, getattr(cls, _DATACLASS_PARAMS)).frozen
+    else:
+        raise TypeError("The object is not a dataclass-like instance or class.")

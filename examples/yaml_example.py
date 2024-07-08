@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from attrs import define, field
 
 from xattrs import asdict, serde

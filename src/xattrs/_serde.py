@@ -7,6 +7,7 @@ from xattrs._compat.typing import Any, Callable, dataclass_transform, overload
 from dataclasses import dataclass
 
 from xattrs._typing import T
+from xattrs._uni import _is_frozen
 from xattrs.typing import (
     CaseConvention,
     StructAs,
@@ -104,7 +105,11 @@ def serde(
 
 def _process_serde(cls, **kwargs):
     """Process the `serde` decorator."""
-    setattr(cls, _XATTRS_SERDE, _XattrsSerde(**kwargs))
+    _serde = _XattrsSerde(**kwargs)
+    if _is_frozen(cls):
+        raise NotImplementedError("Frozen classes are not supported.")
+    else:
+        setattr(cls, _XATTRS_SERDE, _serde)
     return cls
 
 

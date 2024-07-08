@@ -25,7 +25,7 @@ classifiers = [
   "Operating System :: POSIX",
   "Typing :: Typed",
 ]
-dependencies = ["attrs", "typing_extensions", "cattrs"]
+dependencies = ["attrs", "typing_extensions", "cattrs", "datetype"]
 
 [project.optional-dependencies]
 yaml = ["ruamel.yaml>0.18"]

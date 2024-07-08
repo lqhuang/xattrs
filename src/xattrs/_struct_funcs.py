@@ -11,7 +11,7 @@ from functools import partial
 from xattrs._helpers import _identity
 from xattrs._serde import _get_serde
 from xattrs._types import _ATOMIC_TYPES
-from xattrs._uni import _get_fields_func, _is_attrs_like_instance
+from xattrs._uni import _get_fields_func, _is_dataclass_like_instance
 from xattrs.serializer import _make_serializer
 from xattrs.typing import StructAs
 
@@ -44,7 +44,7 @@ def _asdict_inner(  # noqa: PLR0911, PLR0912
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_attrs_like_instance(inst):
+    elif _is_dataclass_like_instance(inst):
         # fast path for the common case of a dataclass / attrs instance
         _fileds = _get_fields_func(inst)
 
@@ -119,7 +119,7 @@ def _astuple_inner(  # noqa: PLR0911, PLR0912
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_attrs_like_instance(inst):
+    elif _is_dataclass_like_instance(inst):
         _fileds = _get_fields_func(inst)
 
         result = []
@@ -180,7 +180,7 @@ def _astree_inner(  # noqa: PLR0911, PLR0912
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_attrs_like_instance(inst):
+    elif _is_dataclass_like_instance(inst):
         _fileds = _get_fields_func(inst)
 
         result = []
