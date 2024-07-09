@@ -2,6 +2,13 @@
 from __future__ import annotations
 
 from xattrs._compat.typing import Any, Callable, TypeGuard, cast, overload
+from xattrs._typing import (
+    AttrsInstance,
+    DataclassInstance,
+    DataclassLike,
+    _AttrsParams,
+    _DataclassParams,
+)
 
 from dataclasses import MISSING, Field
 from dataclasses import fields as dataclass_fields
@@ -10,14 +17,6 @@ from dataclasses import is_dataclass
 from attr._make import _CountingAttr
 from attrs import NOTHING, Attribute
 from attrs import fields as attrs_fields
-
-from xattrs._typing import (
-    AttrsInstance,
-    AttrsLike,
-    DataclassInstance,
-    _AttrsParams,
-    _DataclassParams,
-)
 
 _ATTRS_ATTRS = "__attrs_attrs__"
 _DATACLASS_FIELDS = "__dataclass_fields__"
@@ -57,13 +56,13 @@ def _is_dataclass(
     return is_dataclass(obj)
 
 
-def _is_dataclass_like(obj: Any | type) -> bool:
+def _is_data_class_like(obj: Any | type) -> bool:
     """Return True if the object is a dataclass like class or
     a instance of a dataclass like class."""
     return _is_dataclass(obj) or _is_attrs(obj)
 
 
-def _is_dataclass_like_instance(obj: Any) -> bool:
+def _is_data_class_like_instance(obj: Any) -> bool:
     """Return True if the object is an instance of a dataclass like class."""
     return _is_dataclass_instance(obj) or _is_attrs_instance(obj)
 
@@ -91,14 +90,31 @@ def _get_params(obj: Any) -> _DataclassParams | _AttrsParams:
         raise TypeError("The object is not a dataclass-like type.")
 
 
-def _get_fields_func(inst: Any) -> Callable[[Any], tuple]:
-    """Make sure it must a dataclass or attrs instance before calling
-    this function"""
-    if _is_attrs_instance(inst):
+@overload
+def _fields(obj: DataclassInstance | type[DataclassInstance]) -> tuple[Field]: ...
+
+
+@overload
+def _fields(obj: AttrsInstance | type[AttrsInstance]) -> tuple[Attribute]: ...
+
+
+def _fields(obj: Any) -> tuple[Attribute[Any]] | tuple[Field[Any]]:
+    """Return a tuple describing the fields of this dataclass or attrs.
+
+    Accepts a dataclass (attrs) or an instance of one. Tuple elements are of
+    type Field (Attribute if attrs).
+    """
+    if not _is_data_class_like(obj):
+        raise TypeError(
+            "must be called with a data class like (attrs/dataclass) type or instance"
+        )
+
+    cls = obj if isinstance(obj, type) else type(obj)
+    if _is_attrs_class(cls):
         # `fields` of attrs does not accept an instance, only a class.
-        return lambda x: attrs_fields(type(x))
+        return attrs_fields(cls)
     else:
-        return dataclass_fields
+        return dataclass_fields(cls)  # pyright: ignore[reportReturnType]
 
 
 def _is_field_like_instance(inst: Any) -> bool:
@@ -110,11 +126,10 @@ def _is_field_like_instance(inst: Any) -> bool:
 
 def _should_impl_dataclass(cls: type) -> bool:
     """Return True if the object should implement the dataclass-like protocol."""
-    annotations = getattr(cls, "__annotations__", {})
-    return not _is_dataclass_like(cls)
+    return not _is_data_class_like(cls)
 
 
-def _collect_fields(inst: AttrsLike) -> tuple:
+def _collect_fields(inst: DataclassLike) -> tuple:
     """Collect defined fields if the object has not yet been implemented as
     a dataclass-like class."""
     ...

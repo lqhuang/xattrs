@@ -111,7 +111,8 @@ known_typing = [
   "typing_extensions",
   "collections.abc",
   "xattrs._compat.typing",
-  "xattrs._compat.typing_internal",
+  "xattrs._typing",
+  "xattrs.typing",
 ]
 sections = [
   "FUTURE",

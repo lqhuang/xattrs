@@ -1,9 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
+from xattrs._typing import T
+from xattrs.typing import CaseConvention, _ConverterType
+
 import re
 
-from xattrs.typing import CaseConvention, _ConverterType
+
+def identity(val: T) -> T:
+    return val
 
 
 def to_lower(value: str) -> str:

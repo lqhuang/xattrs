@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from types import MappingProxyType
 from xattrs._compat.typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
@@ -14,14 +15,12 @@ from xattrs._compat.typing import (
     TypeVar,
     TypeVarTuple,
     Union,
-    TYPE_CHECKING,
 )
 
 from dataclasses import Field
 
-from attrs import Attribute
 from attr._make import _CountingAttr
-
+from attrs import Attribute
 
 if TYPE_CHECKING:
 
@@ -31,8 +30,8 @@ if TYPE_CHECKING:
     class AttrsInstance(Protocol):
         __attrs_attrs__: ClassVar[tuple[str, Attribute[Any]]]
 
-    AttrsLike = TypeVar("AttrsLike", DataclassInstance, AttrsInstance)
-    AttributeLike = TypeVar("AttributeLike", Field[Any], Attribute[Any], _CountingAttr)
+    DataclassLike = TypeVar("DataclassLike", DataclassInstance, AttrsInstance)
+    FieldLike = TypeVar("FieldLike", Field, Attribute, _CountingAttr)
 
     class _DataclassParams:
         init: bool
@@ -59,8 +58,8 @@ if TYPE_CHECKING:
         weakref_slot: bool
 
 else:
-    AttrsLike = Any
-    AttributeLike = Any
+    DataclassLike = Any
+    FieldLike = Any
 
     class DataclassInstance(Protocol): ...
 

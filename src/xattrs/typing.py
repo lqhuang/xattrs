@@ -2,17 +2,19 @@
 from __future__ import annotations
 
 from xattrs._compat.typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Generic,
+    Hashable,
     Literal,
     Protocol,
-    TYPE_CHECKING,
 )
+from xattrs._typing import T, T_co, T_contra
+
+from dataclasses import Field
 
 from attrs import Attribute
-
-from xattrs._typing import T, T_co, T_contra
 
 StructAs = Literal["dict", "tuple", "tree"]
 
@@ -44,7 +46,14 @@ class DeserializeFunc(Generic[T, T_contra], Protocol):
 
 
 _ConverterType = Callable[[Any], Any]
+
 if TYPE_CHECKING:
-    _FilterType = Callable[[Attribute[T], T], bool]
+    FilterType = (
+        Callable[[Attribute[T], T], bool]
+        | Callable[[Field[T], T], bool]
+        | Callable[[Hashable, T], bool]
+    )
 else:
-    _FilterType = Any
+    FilterType = Any
+
+CaseConverter = Callable[[str], str]

@@ -2,74 +2,104 @@
 from __future__ import annotations
 
 from typing import Mapping
-from xattrs._compat.typing import Any, Callable
+from xattrs._compat.typing import Any, Callable, Hashable
 
 from copy import copy as shallowcopy
 from copy import deepcopy
 from functools import partial
 
 from xattrs._helpers import _identity
-from xattrs._serde import _get_serde
+from xattrs._serde import _get_serde, _gen_serializer_helpers
 from xattrs._types import _ATOMIC_TYPES
-from xattrs._uni import _get_fields_func, _is_dataclass_like_instance
-from xattrs.serializer import _make_serializer
+from xattrs._uni import _fields, _is_data_class_like_instance
+
 from xattrs.typing import StructAs
+from xattrs._typing import T
+from xattrs._metadata import _gen_field_filter, _gen_field_key_serializer
+from xattrs.filters import keep_include
 
 __all__ = (
     "asdict",
-    "_shallow_asdict",
+    "asdict_shallow",
+    "astuple",
+    "astuple_shallow",
+    "astree",
+    "astree_shallow",
 )
+
+
+def _as_primitive(
+    inst: Any,
+    *,
+    factory: Callable[[], T],
+    filter=None,
+    key_serializer=None,
+    value_serializer=None,
+    copy=deepcopy,
+) -> T:
+    if isinstance(inst, type):
+        raise ValueError("Must be an instance")
+
+    cls = type(inst)
+
+    if cls in _ATOMIC_TYPES:
+        return inst
+    elif _is_data_class_like_instance(inst):
+        inst_fields = _fields(inst)
+        inst_serde_params = _get_serde(inst) or {}
+
+        cls_key_serializer = key_serializer or _identity
+        cls_value_serializer = value_serializer or _identity
+
+    raise NotImplementedError
 
 
 def asdict(
     inst: Any,
     *,
     dict_factory: type[Mapping] = dict,
+    filter=None,
     key_serializer=None,
     value_serializer=None,
     copy=deepcopy,
-) -> Any:
+) -> Mapping[Hashable, Any]:
     """
     Return the fields of a dataclass or attrs instance as a new dictionary mapping
     field names to field values.
     """
-    return _asdict_inner(inst, dict_factory, key_serializer, value_serializer, copy)
+    if isinstance(inst, type):
+        raise TypeError("Must be an instance")
+    return _asdict_inner(
+        inst, dict_factory, filter, key_serializer, value_serializer, copy
+    )
 
 
 def _asdict_inner(  # noqa: PLR0911, PLR0912
-    inst: Any, dict_factory, key_serializer, value_serializer, copy
+    inst: Any, dict_factory, filter_, key_serializer, value_serializer, copy
 ):
     cls = type(inst)
-    args = (key_serializer, value_serializer, copy)
+    args = (filter_, key_serializer, value_serializer, copy)
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_dataclass_like_instance(inst):
+    elif _is_data_class_like_instance(inst):
         # fast path for the common case of a dataclass / attrs instance
-        _fileds = _get_fields_func(inst)
-
         _serde = _get_serde(inst)
-        if _serde is None:
-            as_func = _asdict_inner
-            _key_serializer = key_serializer or _identity
-        else:
-            as_func = (
-                _asdict_inner if _serde.kind is None else _AS_FUNCS_MAPPING[_serde.kind]
-            )
-            inst_key_serializer, _inst_val_serializer = _make_serializer(inst)
-            _key_serializer = inst_key_serializer or key_serializer or _identity
 
-        if dict_factory is dict:
-            return {
-                _key_serializer(f.name): as_func(getattr(inst, f.name), dict, *args)
-                for f in _fileds(inst)
-            }
-        else:
-            result = []
-            for f in _fileds(inst):
-                value = as_func(getattr(inst, f.name), dict_factory, *args)
-                result.append((f.name, value))
-            return dict_factory(result)
+        inst_filter, inst_key_ser, inst_val_ser = _gen_serializer_helpers(inst)
+        _filter = inst_filter or filter_ or keep_include
+        _key_ser = inst_key_ser or key_serializer or _identity
+        _val_ser = inst_val_ser or value_serializer or _identity
+
+        pairs = (
+            (
+                _gen_field_key_serializer(f, _key_ser)(f.name),
+                _asdict_inner(getattr(inst, f.name), dict_factory, *args),
+            )
+            for f in _fields(inst)
+            if _gen_field_filter(f, _filter)(f, getattr(inst, f.name))
+        )
+        return dict_factory(pairs)
     elif isinstance(inst, tuple) and hasattr(inst, "_fields"):
         # instance is a namedtuple.
         # keep namedtuple instances as they are, then recurse into their fields.
@@ -119,11 +149,9 @@ def _astuple_inner(  # noqa: PLR0911, PLR0912
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_dataclass_like_instance(inst):
-        _fileds = _get_fields_func(inst)
-
+    elif _is_data_class_like_instance(inst):
         result = []
-        for f in _fileds(inst):
+        for f in _fields(inst):
             value = _astuple_inner(getattr(inst, f.name), tuple_factory, *args)
             result.append(value)
         return tuple_factory(result)
@@ -180,11 +208,9 @@ def _astree_inner(  # noqa: PLR0911, PLR0912
 
     if cls in _ATOMIC_TYPES:
         return inst
-    elif _is_dataclass_like_instance(inst):
-        _fileds = _get_fields_func(inst)
-
+    elif _is_data_class_like_instance(inst):
         result = []
-        for f in _fileds(inst):
+        for f in _fields(inst):
             value = _astree_inner(getattr(inst, f.name), tuple_factory, *args)
             result.append(value)
         return tuple_factory(result)
@@ -209,9 +235,9 @@ def _astree_inner(  # noqa: PLR0911, PLR0912
         return copy(inst)
 
 
-_shallow_asdict = partial(asdict, copy=shallowcopy)
-_shallow_astuple = partial(astuple, copy=shallowcopy)
-_shallow_astree = partial(astree, copy=shallowcopy)
+asdict_shallow = partial(asdict, copy=shallowcopy)
+astuple_shallow = partial(astuple, copy=shallowcopy)
+astree_shallow = partial(astree, copy=shallowcopy)
 
 _AS_FUNCS_MAPPING: dict[StructAs, Callable] = {
     "dict": _asdict_inner,

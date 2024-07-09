@@ -13,13 +13,7 @@ if TYPE_CHECKING:
 class BaseSerializer(AbstractSerializer[T_interm, T_proto]):
     """Base serializer."""
 
-    def deconstruct(self, obj: Any, **kwargs) -> T_interm:
-        raise NotImplementedError
-
-    def encode(self, obj: T_interm, **kwargs) -> T_proto:
-        raise NotImplementedError
-
-    def dumps(self, obj: Any, **kwargs) -> T_proto:
+    def _dumps(self, obj: Any, **kwargs) -> T_proto:
         return self.encode(self.deconstruct(obj, **kwargs), **kwargs)
 
 
