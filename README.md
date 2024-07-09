@@ -18,15 +18,16 @@ Serialize and deserialize instances of your `attrs` and `dataclasses` types with
 
 ## Introduction
 
-"correct by construction" instead of "correct by validation" / "correct by schema"
+<!-- "correct by construction" instead of "correct by validation" / "correct by schema" -->
 
 ## Project orient
 
-Let dataclasses or frozen attrs just store declaretive 'data'.
+Let dataclasses or attrs just store declaretive and immutable 'data'.
 
 Goals:
 
-Eeasy to use, easy to extend, easy to customize.
+- Easy to use, easy to extend, easy to customize.
+- Extending upstream project as more as its recommended ways, see also [`attrs` Extending](https://www.attrs.org/en/stable/extending.html).
 
 Non-goals:
 

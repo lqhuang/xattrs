@@ -1,16 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import types
-from xattrs._compat.typing import Any, AnyStr, Callable, Optional, TypeVar, Union
+from xattrs._compat.typing import Any, AnyStr, Callable, TypeVar, Union
+from xattrs.typing import DeserializeFunc, SerializeFunc
 
+import json
 from datetime import datetime
-from json import dumps as _dumps
-from json import loads as _loads
 
-from xattrs._struct_funcs import _shallow_asdict
+from xattrs._struct_funcs import asdict_shallow
 from xattrs.deserializer import Deserializer
 from xattrs.serializer import Serializer
-from xattrs.typing import DeserializeFunc, SerializeFunc
 
 __all__ = ["from_json", "to_json"]
 
@@ -37,10 +36,10 @@ __all__ = ["from_json", "to_json"]
 
 T = TypeVar("T")
 
-Json = Union[dict, list, tuple, str, int, float, bool, types.NoneType]  # type: ignore[type-arg]
+Jsonable = Union[dict, list, tuple, str, int, float, bool, types.NoneType]  # type: ignore[type-arg]
 
 
-class JsonDeserializer(Deserializer[AnyStr, Json]):
+class JsonDeserializer(Deserializer[AnyStr, Jsonable]):
     """JSON deserializer."""
 
     def _datetime_from_isoformat(self, value: str) -> datetime:
@@ -52,14 +51,14 @@ class JsonDeserializer(Deserializer[AnyStr, Json]):
         return _loads(data)
 
 
-class JsonSerializer(Serializer[Json, str]):
+class JsonSerializer(Serializer[Jsonable, str]):
     """JSON serializer."""
 
     def _datetime_to_isoformat(self, value: datetime) -> str:
         """Convert the value to an intermediate data types."""
         return value.isoformat()
 
-    def dumps(self, obj: Json, **kwargs: Any) -> str:
+    def dumps(self, obj: Jsonable, **kwargs: Any) -> str:
         """Serialize the object to a JSON-formatted string."""
         return _dumps(obj)
 

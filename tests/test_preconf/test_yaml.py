@@ -23,6 +23,10 @@ def test_yaml__attrs_example():
 
     data = {"first_name": "John", "last_name": "Lowe", "age": 25}
     person = Person(**data)
+    assert (
+        repr(person)
+        == "Person(first_name='John', last_name='Lowe', age=25, full_name='John Lowe')"
+    )
 
     assert asdict(person) == {
         "first-name": "John",

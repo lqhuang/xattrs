@@ -93,8 +93,6 @@ class _Metadata(Generic[T]):
 
 class FilterConf(TypedDict):
     exclude: bool = False
-    # exclude_ser: bool = False
-    # exclude_de: bool = False
     exclude_if: FilterType[T] | None = None
     exclude_if_default: bool | None = None
     exclude_if_false: bool | None = None
@@ -132,19 +130,15 @@ def _gen_field_filter(
 
 
 class AliasConf(TypedDict):
-    exclude: bool = False
-    # exclude_ser: bool = False
-    # exclude_de: bool = False
-    exclude_if: FilterType[T] | None = None
-    exclude_if_default: bool | None = None
-    exclude_if_false: bool | None = None
+    alias: str | None = None
+    alias_converter: CaseConvention | CaseConverter | None = None
 
 
 def _has_key_serializer_params(meta: MappingProxyType) -> TypeGuard[AliasConf]:
     return any(
         (
-            "alias" in meta,
-            "alias_converter" in meta,
+            meta.get("alias") is not None,
+            meta.get("alias_converter") is not None,
         )
     )
 
@@ -169,4 +163,4 @@ def _gen_field_key_serializer(
         else:
             return _alias_converter
     else:
-        return scope_key_serializer or identity
+        raise RuntimeError("Unreachable code")

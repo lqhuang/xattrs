@@ -3,20 +3,17 @@ from __future__ import annotations
 
 from typing import Mapping
 from xattrs._compat.typing import Any, Callable, Hashable
+from xattrs._typing import T
+from xattrs.typing import StructAs
 
 from copy import copy as shallowcopy
 from copy import deepcopy
 from functools import partial
 
-from xattrs._helpers import _identity
-from xattrs._serde import _get_serde, _gen_serializer_helpers
+from xattrs._metadata import _gen_field_filter, _gen_field_key_serializer
+from xattrs._serde import _gen_serializer_helpers
 from xattrs._types import _ATOMIC_TYPES
 from xattrs._uni import _fields, _is_data_class_like_instance
-
-from xattrs.typing import StructAs
-from xattrs._typing import T
-from xattrs._metadata import _gen_field_filter, _gen_field_key_serializer
-from xattrs.filters import keep_include
 
 __all__ = (
     "asdict",
@@ -45,11 +42,12 @@ def _as_primitive(
     if cls in _ATOMIC_TYPES:
         return inst
     elif _is_data_class_like_instance(inst):
-        inst_fields = _fields(inst)
-        inst_serde_params = _get_serde(inst) or {}
+        ...
+        # inst_fields = _fields(inst)
+        # inst_serde_params = _get_serde(inst) or {}
 
-        cls_key_serializer = key_serializer or _identity
-        cls_value_serializer = value_serializer or _identity
+        # cls_key_serializer = key_serializer
+        # cls_value_serializer = value_serializer
 
     raise NotImplementedError
 
@@ -84,12 +82,10 @@ def _asdict_inner(  # noqa: PLR0911, PLR0912
         return inst
     elif _is_data_class_like_instance(inst):
         # fast path for the common case of a dataclass / attrs instance
-        _serde = _get_serde(inst)
-
         inst_filter, inst_key_ser, inst_val_ser = _gen_serializer_helpers(inst)
-        _filter = inst_filter or filter_ or keep_include
-        _key_ser = inst_key_ser or key_serializer or _identity
-        _val_ser = inst_val_ser or value_serializer or _identity
+        _filter = inst_filter or filter_
+        _key_ser = inst_key_ser or key_serializer
+        _val_ser = inst_val_ser or value_serializer
 
         pairs = (
             (

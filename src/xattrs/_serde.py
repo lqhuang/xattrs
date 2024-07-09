@@ -12,11 +12,8 @@ from xattrs.typing import (
     _ConverterType,
 )
 
-from dataclasses import dataclass, field, make_dataclass
+from dataclasses import dataclass
 
-from attrs import make_class
-
-from xattrs._helpers import _identity
 from xattrs._uni import _is_frozen
 from xattrs.converters import _CASE_CONVERTER_MAPPING
 from xattrs.filters import keep_include
@@ -37,7 +34,7 @@ class _SerdeParams:
     metadata: MappingProxyType | None = None
     schema: None = None
 
-    alias_map: MappingProxyType | None = field(init=False)
+    # alias_map: MappingProxyType | None = field(init=False)
 
 
 @overload
@@ -123,14 +120,12 @@ def _process_serde(cls, **kwargs):
 def _get_serde(obj: Any) -> _SerdeParams | None:
     """Get the `_SerdeParams` object from class or instance."""
     cls = obj if isinstance(obj, type) else type(obj)
-    return getattr(type(cls), _ATTRS_SERDE, None)
+    return getattr(cls, _ATTRS_SERDE, None)
 
 
 def _get_serde_kind(obj: Any) -> StructAs | None:
     _serde = _get_serde(obj)
-    if _serde is None:
-        raise ValueError(f"Class {obj} is not decorated with `serde`.")
-    return _serde.kind
+    return _serde.kind if _serde else None
 
 
 def _gen_cls_filter(params: _SerdeParams) -> FilterType:

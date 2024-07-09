@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import types
-from xattrs._compat.typing import Any, AnyStr, Callable, TypeVar, Union
+from xattrs._compat.typing import Any, AnyStr, Callable, TypeVar
+from xattrs.typing import CaseConvention, DeserializeFunc, SerializeFunc
 
 from datetime import datetime
 from functools import partial
@@ -13,7 +14,6 @@ from ruamel.yaml import YAML
 from xattrs._struct_funcs import asdict_shallow
 from xattrs.deserializer import Deserializer
 from xattrs.serializer import Serializer
-from xattrs.typing import CaseConvention, DeserializeFunc, SerializeFunc
 
 __all__ = ("from_yaml", "to_yaml", "dumps", "loads", "dump", "load")
 
@@ -42,7 +42,7 @@ __all__ = ("from_yaml", "to_yaml", "dumps", "loads", "dump", "load")
 
 T = TypeVar("T")
 
-Yaml = Union[dict, list, tuple, str, int, float, bool, types.NoneType]  # type: ignore[type-arg]
+Yamlable = dict | list | tuple | str | int | float | bool | types.NoneType  # type: ignore[type-arg]
 
 
 def _yaml_dumps(obj: Any, *, _ruamel_yaml: YAML, **kwargs: Any) -> str:
@@ -60,7 +60,7 @@ def _yaml_loads(obj: str, *, _ruamel_yaml: YAML, **kwargs: Any) -> str:
         return data
 
 
-class YamlDeserializer(Deserializer):
+class YamlDeserializer(Deserializer[str, Yamlable]):
     """JSON deserializer."""
 
     def __init__(self, loads: Callable | None = None):
@@ -82,8 +82,8 @@ class YamlDeserializer(Deserializer):
 
     def from_yaml(
         self,
-        s: AnyStr,
         cls: type[T],
+        s: AnyStr,
         *,
         deserializer: DeserializeFunc | None = None,
         loads: Callable | None = None,
@@ -97,7 +97,7 @@ class YamlDeserializer(Deserializer):
         return loads(fromdict(s, cls), **kw)
 
 
-class YamlSerializer(Serializer):
+class YamlSerializer(Serializer[Yamlable, str]):
     """YAML serializer."""
 
     def __init__(
@@ -113,6 +113,8 @@ class YamlSerializer(Serializer):
             self._dumps = partial(_yaml_dumps, _ruamel_yaml=_yaml)
         else:
             self._dumps = dumps
+
+        self._global_key_serializer = None
 
     # @Serializer.dispatch(datetime)
     def _datetime_to_isoformat(self, value: datetime, **kw) -> str:
