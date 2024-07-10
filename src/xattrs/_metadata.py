@@ -18,7 +18,6 @@ from xattrs._typing import Attribute, T, _CountingAttr
 from xattrs.typing import CaseConvention, CaseConverter, FilterType, StructAs
 
 from dataclasses import Field, asdict, dataclass
-from dataclasses import field as dataclass_field
 
 from xattrs.converters import _CASE_CONVERTER_MAPPING, identity
 from xattrs.filters import exclude_if_default as exclude_if_default_filter

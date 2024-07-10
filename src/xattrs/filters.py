@@ -17,6 +17,11 @@ def exclude_if_default(field: FieldLike, value: Any) -> bool:
         return True
 
 
+# TODO: Add test cases
+def exclude_if_none(field: FieldLike, value: Any) -> bool:
+    return value is not None
+
+
 def exclude_if_false(field: Any, value: Any) -> bool:
     """
     >>> True if 0 else False

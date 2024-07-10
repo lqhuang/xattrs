@@ -14,6 +14,7 @@ from xattrs._metadata import _gen_field_filter, _gen_field_key_serializer
 from xattrs._serde import _gen_serializer_helpers
 from xattrs._types import _ATOMIC_TYPES
 from xattrs._uni import _fields, _is_data_class_like_instance
+from xattrs.converters import identity
 
 __all__ = (
     "asdict",
@@ -23,6 +24,12 @@ __all__ = (
     "astree",
     "astree_shallow",
 )
+
+
+_AS_DICT = "__attrs_asdict__"
+_AS_TUPLE = "__attrs_astuple__"
+_FROM_DICT = "__attrs_fromdict__"
+_FROM_TUPLE = "__attrs_fromtuple__"
 
 
 def _as_primitive(
@@ -87,15 +94,22 @@ def _asdict_inner(  # noqa: PLR0911, PLR0912
         _key_ser = inst_key_ser or key_serializer
         _val_ser = inst_val_ser or value_serializer
 
-        pairs = (
-            (
-                _gen_field_key_serializer(f, _key_ser)(f.name),
-                _asdict_inner(getattr(inst, f.name), dict_factory, *args),
+        if hasattr(inst, _AS_DICT):
+            _ks = _key_ser or identity
+            return dict_factory(
+                (_ks(k), _asdict_inner(v, dict_factory, *args))
+                for k, v in getattr(inst, _AS_DICT)().items()
             )
-            for f in _fields(inst)
-            if _gen_field_filter(f, _filter)(f, getattr(inst, f.name))
-        )
-        return dict_factory(pairs)
+        else:
+            pairs = (
+                (
+                    _gen_field_key_serializer(f, _key_ser)(f.name),
+                    _asdict_inner(getattr(inst, f.name), dict_factory, *args),
+                )
+                for f in _fields(inst)
+                if _gen_field_filter(f, _filter)(f, getattr(inst, f.name))
+            )
+            return dict_factory(pairs)
     elif isinstance(inst, tuple) and hasattr(inst, "_fields"):
         # instance is a namedtuple.
         # keep namedtuple instances as they are, then recurse into their fields.

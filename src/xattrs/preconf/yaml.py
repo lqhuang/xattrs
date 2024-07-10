@@ -56,6 +56,8 @@ def _yaml_loads(obj: str, *, _ruamel_yaml: YAML, **kwargs: Any) -> str:
     """Serialize ``obj`` to a JSON-formatted ``str``."""
     with StringIO() as stream:
         stream.write(obj)
+        stream.flush()
+        stream.seek(0)
         data = _ruamel_yaml.load(stream, **kwargs)
         return data
 
