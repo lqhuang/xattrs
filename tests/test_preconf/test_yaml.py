@@ -9,7 +9,7 @@ from xattrs.preconf.yaml import to_yaml
 
 
 def test_yaml__attrs_example():
-    @serde(alias_converter="kebab-case")
+    @serde(rename="kebab-case")
     @define
     class Person:
         first_name: str

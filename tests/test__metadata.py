@@ -20,7 +20,7 @@ from xattrs.filters import exclude_if_default, exclude_if_false, keep_include
 
 @pytest.fixture(scope="class")
 def make_field_with_filter():
-    def gen(field_kwargs, init_kwargs, metadata: _Metadata):
+    def gen(field_kwargs, init_kwargs, metadata: _Metadata):  # type: ignore[type-arg]
 
         @define
         class A:
@@ -36,8 +36,8 @@ def make_field_with_filter():
 
 
 @pytest.fixture(scope="class")
-def make_field_with_alias():
-    def gen(field_kwargs, init_kwargs, metadata: _Metadata):
+def make_field_with_alias_name():
+    def gen(field_kwargs, init_kwargs, metadata: _Metadata):  # type: ignore[type-arg]
 
         @define
         class A:
@@ -62,16 +62,16 @@ class TestMetadata:
         [
             {"default": 3},
             {"metadata": {"exclude": False}},
-            {"init": False, "metadata": {"alias": "whatever", "exclude": True}},
+            {"init": False, "metadata": {"name": "whatever", "exclude": True}},
         ],
     )
     @pytest.mark.parametrize(
         "meta_kwargs",
         [
-            {"alias": "int_field"},
+            {"name": "int_field"},
             {"exclude": True},
             {"converter_to": str},
-            {"alias": "int_field", "exclude": True, "converter_to": str},
+            {"name": "int_field", "exclude": True, "converter_to": str},
         ],
     )
     def test_metadata__ror_with_attribute(
@@ -187,13 +187,13 @@ class TestGenFieldFilter:
 class TestGenFieldKeySerializer:
 
     @pytest.mark.parametrize(
-        ("alias_conf", "scope_alias", "expected_alias_func"),
+        ("rename_conf", "scope_rename_func", "expected_rename_func"),
         [
-            ({"alias": "x"}, None, lambda s: "x"),
-            ({"alias": "x"}, lambda s: "aaa", lambda s: "x"),
-            ({"alias_converter": "kebab-case"}, lambda s: False, to_kebab),
-            ({"alias_converter": "camelCase"}, None, to_camel),
-            ({"alias_converter": lambda s: s.upper()}, lambda s: "xx", to_const),
+            ({"name": "x"}, None, lambda s: "x"),
+            ({"name": "x"}, lambda s: "aaa", lambda s: "x"),
+            ({"rename": "kebab-case"}, lambda s: False, to_kebab),
+            ({"rename": "camelCase"}, None, to_camel),
+            ({"rename": lambda s: s.upper()}, lambda s: "xx", to_const),
             ({}, lambda s: "xxx", lambda s: "xxx"),
             ({}, None, lambda s: s),
             ({}, to_const, lambda s: s.upper()),
@@ -201,17 +201,17 @@ class TestGenFieldKeySerializer:
     )
     def test_gen_field_filter__default(
         self,
-        make_field_with_alias,
-        alias_conf,
-        scope_alias,
-        expected_alias_func,
+        make_field_with_alias_name,
+        rename_conf,
+        scope_rename_func,
+        expected_rename_func,
     ):
-        attrs_inst, dataclass_inst = make_field_with_alias(
-            {}, {"snake_name": None}, _Metadata(**alias_conf)
+        attrs_inst, dataclass_inst = make_field_with_alias_name(
+            {}, {"snake_name": None}, _Metadata(**rename_conf)
         )
         for f in _fields(attrs_inst):
-            _filter = _gen_field_key_serializer(f, scope_alias)
-            assert _filter(f.name) == expected_alias_func(f.name)
+            _filter = _gen_field_key_serializer(f, scope_rename_func)
+            assert _filter(f.name) == expected_rename_func(f.name)
         for f in _fields(dataclass_inst):
-            _filter = _gen_field_key_serializer(f, scope_alias)
-            assert _filter(f.name) == expected_alias_func(f.name)
+            _filter = _gen_field_key_serializer(f, scope_rename_func)
+            assert _filter(f.name) == expected_rename_func(f.name)

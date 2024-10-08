@@ -5,7 +5,7 @@ build-backend = "pdm.backend"
 [project]
 name = "xattrs"
 version = "0.0.1"
-description = 'A set of eXtensible serializing and deserializing tools for attrs'
+description = 'An eXtensible serializing and deserializing toolkit for Python strucuted classes'
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "BSD-3-Clause" }
@@ -25,21 +25,14 @@ classifiers = [
   "Operating System :: POSIX",
   "Typing :: Typed",
 ]
-dependencies = ["attrs", "typing_extensions", "datetype", "optree"]
+dependencies = ["attrs", "typing_extensions", "datetype", "dm-tree"]
 
 [project.optional-dependencies]
 yaml = ["ruamel.yaml>0.18"]
 toml = ["tomlkit"]
 ujson = ["ujson"]
 msgpack = ["msgspec"]
-cloudpickle = ["cloudpickle"]
-all = [
-  "xattrs[toml]",
-  "xattrs[yaml]",
-  "xattrs[ujson]",
-  "xattrs[msgpack]",
-  "xattrs[cloudpickle]",
-]
+all = ["xattrs[toml]", "xattrs[yaml]", "xattrs[ujson]", "xattrs[msgpack]"]
 test = [
   "hypothesis",
   "pympler",

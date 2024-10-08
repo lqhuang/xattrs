@@ -4,45 +4,51 @@ Read more about Metadata: https://www.attrs.org/en/stable/extending.html#metadat
 """
 from __future__ import annotations
 
-from types import MappingProxyType
 from xattrs._compat.typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Generic,
+    Mapping,
     TypedDict,
     TypeGuard,
     cast,
     overload,
 )
-from xattrs._typing import Attribute, T, _CountingAttr
-from xattrs.typing import CaseConvention, CaseConverter, FilterType, StructAs
+from xattrs._typing import T
+from xattrs.typing import CaseConvention, CaseConverter, FilterCallable, StructAs
 
 from dataclasses import Field, asdict, dataclass
+
+from attr._make import _CountingAttr
 
 from xattrs.converters import _CASE_CONVERTER_MAPPING, identity
 from xattrs.filters import exclude_if_default as exclude_if_default_filter
 from xattrs.filters import exclude_if_false as exclude_if_false_filter
 from xattrs.filters import keep_include
 
+if TYPE_CHECKING:
+    from attrs import Attribute
+
 
 @dataclass(slots=True)
 class _Metadata(Generic[T]):
-    alias: str | None = None
-    alias_converter: CaseConvention | CaseConverter | None = None
-    # alias_ser: str | None = None
-    # alias_de: str | None = None
+    name: str | None = None
+    rename: CaseConvention | CaseConverter | None = None
+    # rename_ser: str | None = None
+    # rename_de: str | None = None
 
     exclude: bool | None = None
     # exclude_ser: bool = False
     # exclude_de: bool = False
-    exclude_if: FilterType[T] | None = None
+    exclude_if: FilterCallable[T] | None = None
     exclude_if_default: bool | None = None
     exclude_if_false: bool | None = None
 
     converter_to: Callable[[T], Any] | None = None  # same as converter
     converter_from: Callable[[Any], T] | None = None
 
-    struct: StructAs | None = None
+    kind: StructAs | None = None
     flatten: bool = False  # inspired from pyserde
 
     def __post_init__(self) -> None:
@@ -63,22 +69,21 @@ class _Metadata(Generic[T]):
             )
 
     @overload
-    def __ror__(self, value: Field) -> Field: ...
+    def __ror__(self, value: Field[T]) -> Field[T]: ...
     @overload
     def __ror__(self, value: _CountingAttr) -> _CountingAttr: ...
-
-    def __ror__(self, value: Any) -> Field | _CountingAttr:
+    def __ror__(self, value: Any) -> Field | _CountingAttr:  # type: ignore[type-arg]
         if isinstance(value, Field):
             metadata = {**value.metadata, **asdict(self)}
             return Field(
-                default=value.default,
-                default_factory=value.default_factory,  # pyright: ignore[reportArgumentType]
+                default=cast(T, value.default),
+                default_factory=cast(Callable[[], T], value.default_factory),
                 init=value.init,
                 repr=value.repr,
                 hash=value.hash,
                 compare=value.compare,
                 metadata=metadata,
-                kw_only=value.kw_only,  # pyright: ignore[reportArgumentType]
+                kw_only=cast(bool, value.kw_only),
             )
         elif isinstance(value, _CountingAttr):
             # avoid to increase cls counter
@@ -91,13 +96,13 @@ class _Metadata(Generic[T]):
 
 
 class FilterConf(TypedDict):
-    exclude: bool = False
-    exclude_if: FilterType[T] | None = None
-    exclude_if_default: bool | None = None
-    exclude_if_false: bool | None = None
+    exclude: bool
+    exclude_if: FilterCallable | None  # type: ignore[type-arg]
+    exclude_if_default: bool | None
+    exclude_if_false: bool | None
 
 
-def _has_filter_params(meta: MappingProxyType) -> TypeGuard[FilterConf]:
+def _has_filter_params(meta: Mapping) -> TypeGuard[FilterConf]:  # type: ignore[type-arg]
     return any(
         (
             meta.get("exclude") is not None,
@@ -110,10 +115,10 @@ def _has_filter_params(meta: MappingProxyType) -> TypeGuard[FilterConf]:
 
 # FIXME(@lqhuang): update to pipeline scope filter rather than replace scope filter
 def _gen_field_filter(
-    attribute: Field[T] | Attribute[T], scope_filter: FilterType | None = None
-) -> FilterType[T]:
+    attribute: Field[T] | Attribute[T], scope_filter: FilterCallable[T] | None = None
+) -> FilterCallable[T]:
     """Gen a filter function by merging the field and scope filter."""
-    _meta = cast(MappingProxyType, attribute.metadata)
+    _meta = attribute.metadata
     if not _has_filter_params(_meta):
         return scope_filter or keep_include
     elif _meta.get("exclude"):
@@ -128,16 +133,16 @@ def _gen_field_filter(
         return keep_include  # only right for replacing scope filter
 
 
-class AliasConf(TypedDict):
-    alias: str | None = None
-    alias_converter: CaseConvention | CaseConverter | None = None
+class RenameConf(TypedDict):
+    name: str | None
+    rename: CaseConvention | CaseConverter | None
 
 
-def _has_key_serializer_params(meta: MappingProxyType) -> TypeGuard[AliasConf]:
+def _has_key_serializer_params(meta: Mapping[str, Any]) -> TypeGuard[RenameConf]:
     return any(
         (
-            meta.get("alias") is not None,
-            meta.get("alias_converter") is not None,
+            meta.get("name") is not None,
+            meta.get("rename") is not None,
         )
     )
 
@@ -146,20 +151,20 @@ def _gen_field_key_serializer(
     attribute: Field[T] | Attribute[T],
     scope_key_serializer: CaseConverter | None = None,
 ) -> CaseConverter:
-    _meta = cast(MappingProxyType, attribute.metadata)
+    _meta = attribute.metadata
     if not _has_key_serializer_params(_meta):
         return scope_key_serializer or identity
-    if (_alias := _meta.get("alias")) is not None:
-        return lambda x: _alias
-    elif (_alias_converter := _meta.get("alias_converter")) is not None:
-        if isinstance(_alias_converter, str):
+    if (_name := _meta.get("name")) is not None:
+        return lambda x: _name
+    elif (_rename := _meta.get("rename")) is not None:
+        if isinstance(_rename, str):
             try:
-                return _CASE_CONVERTER_MAPPING[_alias_converter]  # type: ignore
+                return _CASE_CONVERTER_MAPPING[_rename]
             except KeyError:
                 raise ValueError(
-                    f"Invalid case convention value {_alias_converter} for 'alias_converter' in : {attribute!r}."
+                    f"Invalid case convention value {_rename} for 'rename' in : {attribute!r}."
                 ) from None
         else:
-            return _alias_converter
+            return _rename
     else:
         raise RuntimeError("Unreachable code")

@@ -22,6 +22,8 @@ from dataclasses import Field
 from attr._make import _CountingAttr
 from attrs import Attribute
 
+_T = TypeVar("_T")
+
 if TYPE_CHECKING:
 
     class DataclassInstance(Protocol):
@@ -31,7 +33,7 @@ if TYPE_CHECKING:
         __attrs_attrs__: ClassVar[tuple[str, Attribute[Any]]]
 
     DataclassLike = TypeVar("DataclassLike", DataclassInstance, AttrsInstance)
-    FieldLike = TypeVar("FieldLike", Field, Attribute, _CountingAttr)
+    FieldLike = Field[_T] | Attribute[_T] | _CountingAttr
 
     class _DataclassParams:
         init: bool

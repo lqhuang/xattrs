@@ -16,7 +16,7 @@ from dataclasses import Field
 
 from attrs import Attribute
 
-StructAs = Literal["dict", "tuple", "tree"]
+StructAs = Literal["dict", "tuple"]
 
 # easy to remember?
 CaseConvention = Literal[
@@ -34,6 +34,22 @@ CaseConvention = Literal[
     # "COBOL-CASE", # NotImplemented
     # "Train-Case", # NotImplemented
 ]
+CaseConverter = Callable[[str], str]
+
+FilterBuiltins = Literal[
+    "exclude_if_default",
+    "exclude_if_none",
+    "exclude_if_false",
+]
+if TYPE_CHECKING:
+    FilterCallable = (
+        Callable[[Attribute[T], T], bool]
+        | Callable[[Field[T], T], bool]
+        | Callable[[Hashable, T], bool]
+    )
+else:
+    FilterCallable = Any
+
 UnknownFields = Literal["ignore", "allow", "deny"]
 
 
@@ -43,17 +59,3 @@ class SerializeFunc(Generic[T_contra, T_co], Protocol):
 
 class DeserializeFunc(Generic[T, T_contra], Protocol):
     def __call__(self, value: T_contra, cls: type[T], **kwargs: Any) -> T: ...
-
-
-_ConverterType = Callable[[Any], Any]
-
-if TYPE_CHECKING:
-    FilterType = (
-        Callable[[Attribute[T], T], bool]
-        | Callable[[Field[T], T], bool]
-        | Callable[[Hashable, T], bool]
-    )
-else:
-    FilterType = Any
-
-CaseConverter = Callable[[str], str]
