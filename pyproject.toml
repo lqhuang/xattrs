@@ -5,9 +5,9 @@ build-backend = "pdm.backend"
 [project]
 name = "xattrs"
 version = "0.0.1"
-description = 'eXtensible serializing and deserializing tools for attrs'
+description = 'A set of eXtensible serializing and deserializing tools for attrs'
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = { text = "BSD-3-Clause" }
 keywords = ["attrs", "cattrs", "serde", "json", "schema"]
 authors = [{ name = "Lanqing Huang", email = "lqhuang@outlook.com" }]
@@ -25,7 +25,7 @@ classifiers = [
   "Operating System :: POSIX",
   "Typing :: Typed",
 ]
-dependencies = ["attrs", "typing_extensions", "cattrs", "datetype"]
+dependencies = ["attrs", "typing_extensions", "datetype", "optree"]
 
 [project.optional-dependencies]
 yaml = ["ruamel.yaml>0.18"]
@@ -128,6 +128,8 @@ sections = [
 ## doc: https://mypy.readthedocs.io/en/stable/config_file.html
 strict = true
 
+## Untyped definitions and calls
+check_untyped_defs = true
 ## Miscellaneous
 warn_unused_configs = true
 ## Configuring error messages
@@ -154,7 +156,7 @@ disable_error_code = ["no-untyped-def", "arg-type"]
 
 [[tool.mypy.overrides]]
 module = "examples.*"
-disallow-untyped-defs = false
+disallow_untyped_defs = false
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md#main-pyright-config-options

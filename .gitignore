@@ -1,6 +1,9 @@
 # IDE files
 .vscode/
 
+# astral.sh uv
+uv.lock
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
