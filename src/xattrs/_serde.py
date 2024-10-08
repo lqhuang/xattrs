@@ -9,6 +9,7 @@ from xattrs.typing import (
     CaseConverter,
     FilterBuiltins,
     FilterCallable,
+    KeyConverter,
     StructAs,
     UnknownFields,
 )
@@ -28,7 +29,7 @@ class _SerdeParams:
     # alias: str | None = None
     # alias_converter: str | CaseConvention | None = None
     kind: StructAs | None = None
-    filter: FilterBuiltins | FilterCallable | None = None  # type: ignore[type-arg]
+    filter: FilterCallable[Any] | None = None
     tag: str | Callable | None = None  # type: ignore[type-arg]
     tag_field: str = "type"
     unknown_fields: UnknownFields | None = None
@@ -45,7 +46,7 @@ def serde(
     *,
     rename: CaseConvention | None = None,
     kind: StructAs | None = None,
-    filter: FilterBuiltins | FilterCallable | None = None,  # type: ignore[type-arg]
+    filter: FilterCallable[Any] | None = None,
     tag: str | Callable | None = None,  # type: ignore[type-arg]
     tag_field: str = "type",
     unknown_fields: UnknownFields | None = None,
@@ -63,7 +64,7 @@ def serde(
     *,
     rename: CaseConvention | CaseConverter | None = None,
     kind: StructAs | None = None,
-    filter=None,
+    filter: FilterCallable[Any] | None = None,
     tag: str | Callable | None = None,  # type: ignore[type-arg]
     tag_field: str = "type",
     unknown_fields: UnknownFields | None = None,
@@ -146,18 +147,15 @@ def _gen_serializer_helpers(
     ),
     /,
     **kwargs,
-) -> tuple[FilterCallable | None, CaseConvention | None, Callable | None]:  # type: ignore[type-arg]
+) -> tuple[FilterCallable | None, KeyConverter | None, Callable | None]:  # type: ignore[type-arg]
     """Create per class level filter, key serializer and value serializer from attrs like instance."""
-    _serde = _get_serde(obj)
-    if _serde is None:
+    serde = _get_serde(obj)
+    if serde is None:
         return None, None, None
 
-    if (filter_ := _serde.filter) is None:
-        _filter = None
-    else:
-        _filter = filter_
+    _filter = serde.filter
 
-    if (rename := _serde.rename) is None:
+    if (rename := serde.rename) is None:
         _key_serializer = None
     elif isinstance(rename, str):
         try:
@@ -167,7 +165,7 @@ def _gen_serializer_helpers(
     else:
         _key_serializer = rename
 
-    if (val_ser := _serde.value_serializer) is None:
+    if (val_ser := serde.value_serializer) is None:
         _value_serializer = None
     else:
         _value_serializer = val_ser

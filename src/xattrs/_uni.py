@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from xattrs._compat.typing import Any, Callable, TypeGuard, cast, overload
+from xattrs._compat.typing import Any, TypeGuard, cast, overload
 from xattrs._typing import (
     AttrsInstance,
     DataclassInstance,

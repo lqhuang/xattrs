@@ -7,7 +7,7 @@ from xattrs.preconf.json import to_json
 from xattrs.preconf.yaml import to_yaml
 
 
-@serde(alias_converter="kebab-case")
+@serde(rename="kebab-case")
 @define
 class Person:
     first_name: str

@@ -9,8 +9,6 @@ import pytest
 from attr import field as attrs_filed
 from attrs import define
 from attrs import field as attrs_field
-from hypothesis import given
-from hypothesis import strategies as st
 
 from xattrs._metadata import _gen_field_filter, _gen_field_key_serializer, _Metadata
 from xattrs._uni import _fields

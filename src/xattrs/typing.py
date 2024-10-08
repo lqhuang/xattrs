@@ -35,6 +35,7 @@ CaseConvention = Literal[
     # "Train-Case", # NotImplemented
 ]
 CaseConverter = Callable[[str], str]
+KeyConverter = Callable[[str], str]
 
 FilterBuiltins = Literal[
     "exclude_if_default",
