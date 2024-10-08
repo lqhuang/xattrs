@@ -11,13 +11,14 @@ TEST_DIR := tests
 DIST_DIR := dist
 DOCS_DIR := docs
 
-PYTHON = ${VENV_DIR}/bin/python3
-PIP    = ${VENV_DIR}/bin/pip3
-PYTEST = ${VENV_DIR}/bin/pytest
-MYPY   = ${VENV_DIR}/bin/mypy
-RUFF   = ${VENV_DIR}/bin/ruff
-BLACK  = ${VENV_DIR}/bin/black
-ISORT  = ${VENV_DIR}/bin/isort
+UV     := uv
+PYTHON := ${VENV_DIR}/bin/python3
+PIP    := ${UV} pip
+PYTEST := ${UV} run pytest
+MYPY   := ${UV} run mypy
+RUFF   := ${UV} run ruff
+BLACK  := ${UV} run black
+ISORT  := ${UV} run isort
 
 # -----------------------------------------------------------------------------
 .PHONY: bootstrap-venv bootstrap-dev bootstrap
@@ -28,9 +29,18 @@ bootstrap-venv:
 
 bootstrap-dev:
 	@echo "Installing development dependencies"
-	$(PIP) install -e .[dev]
+	$(PIP) install -e '.[dev]'
 
 bootstrap: bootstrap-venv bootstrap-dev
+
+sync:
+	$(UV) sync
+
+sync-dev:
+	$(UV) sync --extra dev
+
+sync-all:
+	$(UV) sync --all-extras
 
 # -----------------------------------------------------------------------------
 .PHONY: build

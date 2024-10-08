@@ -91,13 +91,14 @@ Ts = TypeVarTuple("Ts")
 
 Decorator: TypeAlias = Callable[[Callable[P, R_co]], Callable[P, R_co]]
 
-PredCallable: TypeAlias = Callable[P, bool]
-UnaryCallable: TypeAlias = Callable[Concatenate[T, P], R_co]  # Support at least 1 argument # fmt: skip
-BinaryCallable: TypeAlias = Callable[Concatenate[T1, T2, P], R_co]  # Support at least 2 arguments # fmt: skip
-CallableFacatory: TypeAlias = Callable[P1, Callable[P2, R_co]]
+if TYPE_CHECKING:
+    PredCallable: TypeAlias = Callable[P, bool]
+    UnaryCallable: TypeAlias = Callable[Concatenate[T, P], R_co]  # Support at least 1 argument # fmt: skip
+    BinaryCallable: TypeAlias = Callable[Concatenate[T1, T2, P], R_co]  # Support at least 2 arguments # fmt: skip
+    CallableFacatory: TypeAlias = Callable[P1, Callable[P2, R_co]]
 
-TreeCallable: TypeAlias = Callable[[tuple[Any]], R_co]
-GenericCallable: TypeAlias = Callable[..., R_co]
+    TreeCallable: TypeAlias = Callable[[tuple[Any]], R_co]
+    GenericCallable: TypeAlias = Callable[..., R_co]
 
 
 ######## Framework specific types ########
@@ -108,12 +109,13 @@ T_proto = TypeVar("T_proto", covariant=True)  # noqa: PLC0105
 # Protocol compatible Python type
 T_interm = TypeVar("T_interm")
 
-HookPredicate: TypeAlias = Callable[Concatenate[type[T], P], bool]
-HookFacatory: TypeAlias = Callable[Concatenate[type[T], P], Callable[..., T]]
-ConstructHook: TypeAlias = BinaryCallable[type[T1], T2, ..., T1]
-DeconstructHook: TypeAlias = UnaryCallable[type[T], ..., T]
-Hook = Union[ConstructHook[T, Any], DeconstructHook[T]]
-Dispatchable = Union[type[T], HookPredicate[T, ...]]
+if TYPE_CHECKING:
+    HookPredicate: TypeAlias = Callable[Concatenate[type[T], P], bool]
+    HookFacatory: TypeAlias = Callable[Concatenate[type[T], P], Callable[..., T]]
+    ConstructHook: TypeAlias = BinaryCallable[type[T1], T2, ..., T1]
+    DeconstructHook: TypeAlias = UnaryCallable[type[T], ..., T]
+    Hook = Union[ConstructHook[T, Any], DeconstructHook[T]]
+    Dispatchable = Union[type[T], HookPredicate[T, ...]]
 
 
 class SingleDispatchCallable(Generic[T]):

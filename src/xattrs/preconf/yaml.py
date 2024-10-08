@@ -94,7 +94,7 @@ class YamlDeserializer(Deserializer[str, Yamlable]):
         """Deserialize ``s`` (a ``str``, ``bytes`` or ``bytearray`` instance
         containing a JSON document) to a Python object.
         """
-        deserializer = deserializer or default_yaml_deserializer
+        deserializer = deserializer or self
         loads = loads or self.loads
         return loads(fromdict(s, cls), **kw)
 
@@ -136,7 +136,7 @@ class YamlSerializer(Serializer[Yamlable, str]):
         **kwargs: Any,
     ) -> str:
         """Serialize ``obj`` to a JSON-formatted ``str``."""
-        value_serializer = value_serializer or default_yaml_serializer
+        value_serializer = value_serializer or self
         dumps = dumps or self._dumps
         return dumps(
             asdict_shallow(
@@ -146,12 +146,12 @@ class YamlSerializer(Serializer[Yamlable, str]):
         )
 
 
-default_yaml_serializer = YamlSerializer()
-default_yaml_deserializer = YamlDeserializer()
+yaml_serializer = YamlSerializer()
+yaml_deserializer = YamlDeserializer()
 
-to_yaml = default_yaml_serializer.to_yaml
-from_yaml = default_yaml_deserializer.from_yaml
-dumps = default_yaml_serializer.dumps
-loads = default_yaml_deserializer.loads
-dump = default_yaml_serializer.dump
-load = default_yaml_deserializer.load
+to_yaml = yaml_serializer.to_yaml
+from_yaml = yaml_deserializer.from_yaml
+dumps = yaml_serializer.dumps
+loads = yaml_deserializer.loads
+dump = yaml_serializer.dump
+load = yaml_deserializer.load

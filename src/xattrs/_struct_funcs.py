@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from __future__ import annotations
 
-from typing import Mapping
-from xattrs._compat.typing import Any, Callable, Hashable
+from xattrs._compat.typing import Any, Callable, Hashable, Mapping
 from xattrs._typing import T
 from xattrs.typing import StructAs
 
