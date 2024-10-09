@@ -10,7 +10,7 @@ from copy import deepcopy
 from functools import partial
 
 from xattrs._metadata import _gen_field_filter, _gen_field_key_serializer
-from xattrs._serde import _gen_serializer_helpers
+from xattrs._serde import gen_serializer_helpers
 from xattrs._types import _ATOMIC_TYPES
 from xattrs._uni import _fields, _is_data_class_like_instance
 from xattrs.converters import identity
@@ -88,7 +88,7 @@ def _asdict_inner(  # noqa: PLR0911, PLR0912
         return inst
     elif _is_data_class_like_instance(inst):
         # fast path for the common case of a dataclass / attrs instance
-        inst_filter, inst_key_ser, inst_val_ser = _gen_serializer_helpers(inst)
+        inst_filter, inst_key_ser, inst_val_ser = gen_serializer_helpers(inst)
         _filter = inst_filter or filter_
         _key_ser = inst_key_ser or key_serializer
         _val_ser = inst_val_ser or value_serializer

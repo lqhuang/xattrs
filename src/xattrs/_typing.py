@@ -9,6 +9,7 @@ from xattrs._compat.typing import (
     ClassVar,
     Concatenate,
     Generic,
+    Mapping,
     ParamSpec,
     Protocol,
     TypeAlias,
@@ -34,6 +35,10 @@ if TYPE_CHECKING:
 
     DataclassLike = TypeVar("DataclassLike", DataclassInstance, AttrsInstance)
     FieldLike = Field[_T] | Attribute[_T] | _CountingAttr
+
+    class XattrsInstance(Protocol):
+        __attrs_attrs__: ClassVar[tuple[str, Attribute[Any]]]
+        __attrs_serde__: ClassVar[Mapping[str, Any]]
 
     class _DataclassParams:
         init: bool
@@ -66,6 +71,8 @@ else:
     class DataclassInstance(Protocol): ...
 
     class AttrsInstance(Protocol): ...
+
+    class XattrsInstance(Protocol): ...
 
     class _DataclassParams: ...
 

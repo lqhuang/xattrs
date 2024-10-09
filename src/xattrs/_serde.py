@@ -2,8 +2,14 @@
 from __future__ import annotations
 
 from types import MappingProxyType
-from xattrs._compat.typing import Any, Callable, dataclass_transform, overload
-from xattrs._typing import AttrsInstance, DataclassInstance, T
+from xattrs._compat.typing import (
+    Any,
+    Callable,
+    TypedDict,
+    dataclass_transform,
+    overload,
+)
+from xattrs._typing import AttrsInstance, DataclassInstance, T, XattrsInstance
 from xattrs.typing import (
     CaseConvention,
     CaseConverter,
@@ -16,6 +22,8 @@ from xattrs.typing import (
 
 from dataclasses import dataclass
 
+from attrs import Attribute, fields
+
 from xattrs._uni import _is_frozen
 from xattrs.converters import _CASE_CONVERTER_MAPPING
 from xattrs.filters import keep_include
@@ -24,7 +32,7 @@ _ATTRS_SERDE = "__attrs_serde__"
 
 
 @dataclass(slots=True)
-class _SerdeParams:
+class SerdeParams:
     rename: CaseConvention | CaseConverter | None = None
     # alias: str | None = None
     # alias_converter: str | CaseConvention | None = None
@@ -93,7 +101,7 @@ def serde(
 ):
 
     def wrapper(cls: type[T]) -> type[T]:
-        return _process_serde(  # type: ignore[no-untyped-call,no-any-return]
+        return _process_serde(  # type: ignore[no-any-return]
             cls,
             rename=rename,
             kind=kind,
@@ -113,9 +121,9 @@ def serde(
     return wrapper(cls)
 
 
-def _process_serde(cls, **kwargs):
+def _process_serde(cls: type[T], **kwargs):
     """Process the `serde` decorator."""
-    _serde = _SerdeParams(**kwargs)
+    _serde = SerdeParams(**kwargs)
     if _is_frozen(cls):
         raise NotImplementedError("Frozen classes are not supported.")
     else:
@@ -123,22 +131,31 @@ def _process_serde(cls, **kwargs):
     return cls
 
 
-def _get_serde(obj: Any) -> _SerdeParams | None:
-    """Get the `_SerdeParams` object from class or instance."""
+def _get_serde(obj: XattrsInstance) -> SerdeParams:
+    """Get the `SerdeParams` object from class or instance"""
+    cls = obj if isinstance(obj, type) else type(obj)
+    serde: SerdeParams | None = getattr(cls, _ATTRS_SERDE)
+    if serde is None:
+        raise ValueError(f"no serde params found for {cls!r}")
+    return serde
+
+
+def _maybe_serde(obj: Any) -> SerdeParams | None:
+    """Get the `SerdeParams` object from class or instance."""
     cls = obj if isinstance(obj, type) else type(obj)
     return getattr(cls, _ATTRS_SERDE, None)
 
 
-def _get_serde_kind(obj: Any) -> StructAs | None:
-    _serde = _get_serde(obj)
+def get_serde_kind(obj: Any) -> StructAs | None:
+    _serde = _maybe_serde(obj)
     return _serde.kind if _serde else None
 
 
-def _gen_cls_filter(params: _SerdeParams) -> FilterCallable:  # type: ignore[type-arg]
+def gen_cls_filter(params: SerdeParams) -> FilterCallable:  # type: ignore[type-arg]
     return keep_include
 
 
-def _gen_serializer_helpers(
+def gen_serializer_helpers(
     obj: (
         AttrsInstance
         | DataclassInstance
@@ -149,7 +166,7 @@ def _gen_serializer_helpers(
     **kwargs,
 ) -> tuple[FilterCallable | None, KeyConverter | None, Callable | None]:  # type: ignore[type-arg]
     """Create per class level filter, key serializer and value serializer from attrs like instance."""
-    serde = _get_serde(obj)
+    serde = _maybe_serde(obj)
     if serde is None:
         return None, None, None
 
