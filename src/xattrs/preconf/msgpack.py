@@ -1,17 +1,16 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 
 import types
 from xattrs._compat.typing import Any, AnyStr, Callable, TypeVar, Union
+from xattrs.typing import CaseConvention, DeserializeFunc, SerializeFunc
 
 from datetime import datetime
 from functools import partial
 
-
 from xattrs._struct_funcs import asdict_shallow
 from xattrs.deserializer import Deserializer
 from xattrs.serializer import Serializer
-from xattrs.typing import CaseConvention, DeserializeFunc, SerializeFunc
 
 __all__ = ("from_msgpack", "to_msgpack", "dumps", "loads", "dump", "load")
 

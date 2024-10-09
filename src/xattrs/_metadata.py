@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 """
 Read more about Metadata: https://www.attrs.org/en/stable/extending.html#metadata
 """

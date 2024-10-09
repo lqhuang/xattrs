@@ -1,13 +1,13 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 from collections.abc import Sequence
 from xattrs._compat.typing import (
     Annotated,
     Any,
+    NewType,
     Optional,
     Type,
     TypedDict,
     TypeGuard,
-    NewType,
 )
 
 from collections import defaultdict

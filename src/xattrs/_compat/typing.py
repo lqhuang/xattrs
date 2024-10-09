@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 # ruff: noqa: F401, UP035
 # mypy: disable-error-code="assignment"
 from typing import *  # noqa: F403 # pyright: ignore[reportWildcardImportFromLibrary]

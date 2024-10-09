@@ -1,9 +1,9 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 
 from xattrs._compat.typing import TYPE_CHECKING, Any
-
 from xattrs._typing import T, T_interm, T_proto
+
 from xattrs.abc import AbstractDeserializer, AbstractSerDe, AbstractSerializer
 
 if TYPE_CHECKING:

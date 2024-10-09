@@ -1,13 +1,12 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 # mypy: disable-error-code="empty-body"
 from __future__ import annotations
 
 from types import MappingProxyType
 from xattrs._compat.typing import TYPE_CHECKING, Any, Callable, Generic
+from xattrs._typing import SingleDispatchCallable, T, T_co, T_contra, T_interm, T_proto
 
 from abc import abstractmethod
-
-from xattrs._typing import SingleDispatchCallable, T, T_co, T_contra, T_interm, T_proto
 
 if TYPE_CHECKING:
     from xattrs._typing import ConstructHook, DeconstructHook, Dispatchable

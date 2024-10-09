@@ -57,4 +57,4 @@ The most important thing is the community, and we are looking forward to how peo
 
 ## License
 
-`xattrs` is distributed under the terms of the [BSD-3-Clause](https://spdx.org/licenses/BSD-3-Clause.html) license.
+`xattrs` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.

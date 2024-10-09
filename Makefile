@@ -47,7 +47,7 @@ sync-all:
 
 build:
 	@echo "Building package"
-	$(PYTHON) -m build --sdist --wheel --outdir ${DIST_DIR}
+	$(UV) build
 
 .PHONY: test
 test:

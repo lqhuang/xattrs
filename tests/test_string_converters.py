@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 
 import pytest
@@ -13,7 +13,6 @@ from xattrs.converters import (
     to_secret,
     to_snake,
 )
-
 
 SNAKE_CASES = ["foo", "foo_bar", "foo_bar_baz"]
 KEBAB_CASES = ["foo", "foo-bar", "foo-bar-baz"]

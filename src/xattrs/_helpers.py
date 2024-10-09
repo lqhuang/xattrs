@@ -1,12 +1,12 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 
 from xattrs._compat.typing import Any
+from xattrs._typing import T
 
 from enum import Enum
 
 from xattrs._guards import is_enum
-from xattrs._typing import T
 
 
 def _enum_value(inst: Any, cls: type[Enum]):

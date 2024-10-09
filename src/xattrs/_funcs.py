@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 
 from xattrs._uni import _ATTRS_ATTRS, _DATACLASS_FIELDS

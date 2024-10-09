@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 
 from typing import NoReturn
@@ -11,15 +11,18 @@ from xattrs._compat.typing import (
     Mapping,
     cast,
 )
+from xattrs._typing import (
+    Dispatchable,
+    Hook,
+    SingleDispatchCallable,
+    T,
+    UnarySingleDispatchCallable,
+)
 
 from functools import singledispatch
 
 from xattrs.abc import AbstractDispatcher
 from xattrs.exceptions import HookNotFoundError
-from xattrs.typing import SingleDispatchCallable, T, UnarySingleDispatchCallable
-
-if TYPE_CHECKING:
-    from xattrs.typing import Dispatchable, Hook
 
 
 def _dispatch_not_found(_, **kwargs) -> NoReturn:

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 
 import types
 from xattrs._compat.typing import Any, AnyStr, Callable, TypeVar, Union
