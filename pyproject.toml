@@ -33,6 +33,9 @@ toml = ["tomlkit"]
 ujson = ["ujson"]
 msgpack = ["msgspec"]
 all = ["xattrs[toml]", "xattrs[yaml]", "xattrs[ujson]", "xattrs[msgpack]"]
+
+[dependency-groups]
+linter = ['mypy', 'ruff']
 test = [
   "hypothesis",
   "pympler",
@@ -54,10 +57,13 @@ docs = [
   "sphinx-autodoc-typehints",
   "sphinxext-opengraph",
 ]
-linter = ['mypy', 'black', 'isort', 'ruff', "pyupgrade", "pre-commit"]
-build = ["pip", "build>=1.0.0", "wheel", "pdm", "pdm-backend"]
-dev = ["xattrs[linter,test,build,docs]"]
-
+dev = [
+  "pre-commit",
+  "pip",
+  { include-group = "linter" },
+  { include-group = "test" },
+  { include-group = "docs" },
+]
 
 [project.urls]
 Documentation = "https://github.com/lqhuang/xattrs#readme"
@@ -65,21 +71,17 @@ Issues = "https://github.com/lqhuang/xattrs/issues"
 Source = "https://github.com/lqhuang/xattrs"
 
 # ## Build
-[tool.hatch.build.targets.wheel]
-packages = ["src/xattrs"]
-
 [tool.pdm.build]
-package-dir = "src"
-source-includes = [
-  "docs",
-  "src",
-  "tests",
-  "CHANGELOG.md",
-  "LICENSE",
-  "Makefile",
-  "pyproject.toml",
-  "README.md",
-]
+# source-includes = [
+#   "docs",
+#   "src",
+#   "tests",
+#   "CHANGELOG.md",
+#   "LICENSE",
+#   "Makefile",
+#   "pyproject.toml",
+#   "README.md",
+# ]
 
 ## Pytest
 [tool.pytest.ini_options]
@@ -89,32 +91,6 @@ testpaths = "tests"
 
 [tool.check-wheel-contents]
 toplevel = ["xattrs"]
-
-## Formatter
-[tool.black]
-line-length = 88
-include = '\.pyi?$'
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_typing = [
-  "types",
-  "typing",
-  "typing_extensions",
-  "collections.abc",
-  "xattrs._compat.typing",
-  "xattrs._typing",
-  "xattrs.typing",
-]
-sections = [
-  "FUTURE",
-  "TYPING",
-  "STDLIB",
-  "THIRDPARTY",
-  "FIRSTPARTY",
-  "LOCALFOLDER",
-]
 
 ## Linter
 [tool.mypy]
@@ -156,11 +132,6 @@ disallow_untyped_defs = false
 typeCheckingMode = "basic"
 reportGeneralTypeIssues = false
 # reportPrivateUsage = false
-
-[tool.ruff]
-line-length = 88
-indent-width = 4
-fix = false
 
 typing-modules = ["xattrs._compat.typing"]
 
