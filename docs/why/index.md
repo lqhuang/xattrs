@@ -1,9 +1,4 @@
-`dataclasses` and `attrs` are two popular libraries in Python for defining
-classes with attributes. They are similar in many ways, but they have different
-APIs. One of the differences is that `dataclasses` has a built-in function
-`asdict` to convert an instance of a dataclass to a dictionary, while `attrs`
-does not have such a function. In this article, we will show you how to
-implement `asdict` for `attrs` classes.
+`dataclasses` and `attrs` are two popular libraries in Python for defining classes with attributes. They are similar in many ways, but they have different APIs. One of the differences is that `dataclasses` has a built-in function `asdict` to convert an instance of a dataclass to a dictionary, while `attrs` does not have such a function. In this article, we will show you how to implement `asdict` for `attrs` classes.
 
 ## `asdict` functions between `dataclasses` and `attrs`
 
@@ -41,3 +36,7 @@ def asdict(
 ```
 
 xattrs keep `value_serializer`
+
+## Sequence of how fields initialized is not important while representing as dict, but composition is important
+
+if you define or want to mix in a class with `attrs` and `dataclass`, you can use `asdict` to convert the instance to a dictionary. However, the order of fields initialization is not important when representing an instance as a dictionary, but the composition is important. For example, if you have a class `A` with fields `a` and `b`, and a class `B` with fields `b` and `a`, the instances of `A` and `B` should be represented as the same dictionary.
