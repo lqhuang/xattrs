@@ -99,7 +99,6 @@ def serde(
     schema: None = None,
     metadata: MappingProxyType | None = None,  # type: ignore[type-arg]
 ):
-
     def wrapper(cls: type[T]) -> type[T]:
         return _process_serde(  # type: ignore[no-any-return]
             cls,

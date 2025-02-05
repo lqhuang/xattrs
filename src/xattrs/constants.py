@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: MIT
+"""Configuration constants for xattrs"""
+
 from __future__ import annotations
 
 META_PREFIX = "xattrs"
 
-
-## Configuration
-
-### Case Convention
+# Case Convention
 
 LOWER_CASE = "lowercase"
 UPPER_CASE = "uppercase"
@@ -23,13 +22,13 @@ KEBAB_CASE = "kebab-case"
 COBOL_CASE = "COBOL-CASE"
 TRAIN_CASE = "Train-Case"
 
-## Global specific configuration
+# Global specific configuration
 deny_unknown_fields = "deny_unknown_fields"
 
-### New type (as new type)
+# New type (as new type)
 NEW_TYPE = "new_type"
 
-## Field specific configuration
+# Field specific configuration
 ALIAS = "alias"
 ALIASES = "aliases"
 """

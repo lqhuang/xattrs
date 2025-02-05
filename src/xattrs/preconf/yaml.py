@@ -15,7 +15,7 @@ from xattrs._struct_funcs import asdict_shallow
 from xattrs.deserializer import Deserializer
 from xattrs.serializer import Serializer
 
-__all__ = ("from_yaml", "to_yaml", "dumps", "loads", "dump", "load")
+__all__ = ("dump", "dumps", "from_yaml", "load", "loads", "to_yaml")
 
 # Supports the following objects and types by default:
 #

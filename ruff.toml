@@ -3,14 +3,15 @@ indent-width = 4
 extend-exclude = [".venv*"]
 preview = true
 
+
 [format]
 docstring-code-format = true
 docstring-code-line-length = 79
 preview = true
 skip-magic-trailing-comma = true
 
+
 [lint]
-typing-modules = ["collections.abc"]
 preview = true
 
 # Enable rules:
@@ -37,9 +38,7 @@ extend-select = [
     "PERF", # perflint
     "RUF",  # Ruff-specific rules
 ]
-
-# extend-select = []
-ignore = [
+extend-ignore = [
     "E501",    # Line too long (95 > 88 characters)
     "S101",    # Use of `assert` detected
     "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
@@ -48,13 +47,11 @@ ignore = [
     "D100", # Missing docstring in public module
 ]
 
-
 #  A list of check code prefixes to consider autofix-able.
 extend-fixable = ["UP", "B", "I", "TCH"]
 unfixable = [
     "F401", # Don't touch unused imports
 ]
-
 
 [lint.per-file-ignores]
 "**/tests/**/*.py" = [
@@ -65,7 +62,7 @@ unfixable = [
 ] # Tests can use magic values, assertions, and relative imports
 
 [lint.pydocstyle]
-convention = "pep257"
+convention = "google"
 
 # [lint.pyupgrade]
 # # Preserve types, even if a file imports `from __future__ import annotations`.
@@ -88,6 +85,7 @@ typing = [
     "typing",
     "typing_extensions",
     "collections.abc",
+    "types",
     # libraries that are not in the standard library
     "xattrs._compat.typing",
     "xattrs._typing",

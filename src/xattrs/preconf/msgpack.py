@@ -12,7 +12,7 @@ from xattrs._struct_funcs import asdict_shallow
 from xattrs.deserializer import Deserializer
 from xattrs.serializer import Serializer
 
-__all__ = ("from_msgpack", "to_msgpack", "dumps", "loads", "dump", "load")
+__all__ = ("dump", "dumps", "from_msgpack", "load", "loads", "to_msgpack")
 
 
 MsgPackable = Union[dict, list, tuple, str, int, float, bool, types.NoneType]  # type: ignore[type-arg]

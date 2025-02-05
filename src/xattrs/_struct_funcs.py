@@ -18,10 +18,10 @@ from xattrs.converters import identity
 __all__ = (
     "asdict",
     "asdict_shallow",
-    "astuple",
-    "astuple_shallow",
     "astree",
     "astree_shallow",
+    "astuple",
+    "astuple_shallow",
 )
 
 
@@ -78,7 +78,7 @@ def asdict(
     )
 
 
-def _asdict_inner(  # noqa: PLR0911, PLR0912
+def _asdict_inner(  # noqa: PLR0911
     inst: Any, dict_factory, filter_, key_serializer, value_serializer, copy
 ):
     cls = type(inst)
@@ -150,7 +150,7 @@ def astuple(
     return _astuple_inner(inst, tuple_factory, key_serializer, value_serializer, copy)
 
 
-def _astuple_inner(  # noqa: PLR0911, PLR0912
+def _astuple_inner(  # noqa: PLR0911
     inst, tuple_factory, key_serializer, value_serializer, copy
 ):
     args = (key_serializer, value_serializer, copy)
@@ -209,9 +209,7 @@ def astree(
     return _astree_inner(inst, tuple_factory, key_serializer, value_serializer, copy)
 
 
-def _astree_inner(  # noqa: PLR0911, PLR0912
-    inst, tuple_factory, key_serializer, value_serializer, copy
-):
+def _astree_inner(inst, tuple_factory, key_serializer, value_serializer, copy):
     args = (key_serializer, value_serializer, copy)
     cls = type(inst)
 

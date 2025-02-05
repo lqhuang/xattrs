@@ -7,9 +7,9 @@ from functools import partial
 __all__ = (
     "dataclass",
     "define",
-    "mutable",
-    "frozen",
     "evolve",
+    "frozen",
+    "mutable",
 )
 
 mutable = define = partial(dataclass, slots=True)

@@ -20,7 +20,7 @@
 
 `attrs` is a great library to define classes with declarative and immutable data, but it's not designed to serialize or deserialize instances directly and validate data value by given schema.
 
-`attrs` incubated `dataclasses` define classes without boilerplate in a standard library way. And as a third-party library
+`attrs` incubated `dataclasses` to define classes without boilerplate in a standard library way. And
 
 > ...
 >
@@ -30,9 +30,9 @@
 >
 > ...
 >
-> - [attrs Documentaion - Why not ...](https://www.attrs.org/en/stable/why.html)
+> -- [attrs Documentaion - Why not ...](https://www.attrs.org/en/stable/why.html)
 
-As I understand, `attrs` is more powerful and flexible, and has better situation than `dataclass` to develop and test bleeding-edge ideas and unstable features. And finally, these could also feedback to `dataclass`.
+As I understand, `attrs` is more powerful and flexible as a third-party library, and has better situation than `dataclass` to develop and test bleeding-edge ideas and unstable features. And finally, these could also feedback to `dataclass`.
 
 Unfortunately, while `attrs` itself is widely adopted, its ecosystem is not as prosperous as `pydantic`'s. Very few libraries are designed to enrich validators, filters or converters for attrs. `cattrs` attempted to do so, but it hasn't gained the popularity that was expected.
 

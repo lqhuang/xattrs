@@ -110,9 +110,9 @@ if TYPE_CHECKING:
     GenericCallable: TypeAlias = Callable[..., R_co]
 
 
-######## Framework specific types ########
+# ---- Framework specific types ----
 # Generic for final protocol type
-T_proto = TypeVar("T_proto", covariant=True)  # noqa: PLC0105
+T_proto = TypeVar("T_proto", covariant=True)
 # interchange datatype / intermediary / bridge
 # Protocol-aware type
 # Protocol compatible Python type
