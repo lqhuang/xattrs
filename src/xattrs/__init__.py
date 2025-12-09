@@ -4,9 +4,7 @@ from __future__ import annotations
 from xattrs._compat.typing import TYPE_CHECKING, Callable
 
 from attr import dataclass
-from attr._funcs import evolve
-from attr._make import fields
-from attrs import define, field, frozen, mutable
+from attrs import define, evolve, field, fields, frozen, mutable
 
 from xattrs._serde import serde
 from xattrs._struct_funcs import asdict, astree, astuple
@@ -16,22 +14,18 @@ if TYPE_CHECKING:
 
 
 __all__ = (
-    "derive",
-    # from ._struct_funcs module
     "asdict",
-    "astuple",
     "astree",
-    # re-export from attrs
+    "astuple",
     "dataclass",
     "define",
-    "mutable",
-    "frozen",
-    "field",
-    # re-export funcs from attrs
-    "fields",
+    "derive",
     "evolve",
+    "field",
+    "fields",
+    "frozen",
+    "mutable",
     "replace",
-    # re-export from xattrs
     "serde",
 )
 

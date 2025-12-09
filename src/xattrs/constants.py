@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-META_PREFIX = "xattrs"
+METANAME = "xattrs"
+NAMESPACE_STRUCT_DICT = f"{METANAME}_asdict"
+NAMESPACE_STRUCT_TUPLE = f"{METANAME}_astuple"
 
 # Case Convention
 

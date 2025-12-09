@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from types import MappingProxyType
+from typing import Literal
 from xattrs._compat.typing import (
     TYPE_CHECKING,
     Any,
@@ -9,6 +10,7 @@ from xattrs._compat.typing import (
     ClassVar,
     Concatenate,
     Generic,
+    LiteralString,
     Mapping,
     ParamSpec,
     Protocol,
@@ -25,20 +27,21 @@ from attrs import Attribute
 
 _T = TypeVar("_T")
 
+
+class DataclassInstance(Protocol):
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
+
+
+class AttrsInstance(Protocol):
+    __attrs_attrs__: ClassVar[tuple[str, Attribute[Any]]]
+
+
+T_attrs = TypeVar("T_attrs", bound=type[AttrsInstance])
+T_dataclass = TypeVar("T_dataclass", bound=type[DataclassInstance])
+
 if TYPE_CHECKING:
-
-    class DataclassInstance(Protocol):
-        __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
-
-    class AttrsInstance(Protocol):
-        __attrs_attrs__: ClassVar[tuple[str, Attribute[Any]]]
-
     DataclassLike = TypeVar("DataclassLike", DataclassInstance, AttrsInstance)
     FieldLike = Field[_T] | Attribute[_T] | _CountingAttr
-
-    class XattrsInstance(Protocol):
-        __attrs_attrs__: ClassVar[tuple[str, Attribute[Any]]]
-        __attrs_serde__: ClassVar[Mapping[str, Any]]
 
     class _DataclassParams:
         init: bool
@@ -68,12 +71,6 @@ else:
     DataclassLike = Any
     FieldLike = Any
 
-    class DataclassInstance(Protocol): ...
-
-    class AttrsInstance(Protocol): ...
-
-    class XattrsInstance(Protocol): ...
-
     class _DataclassParams: ...
 
     class _AttrsParams: ...
@@ -98,6 +95,8 @@ P2 = ParamSpec("P2")
 R_co = TypeVar("R_co", covariant=True)
 Ts = TypeVarTuple("Ts")
 
+T_ls = TypeVar("T_ls", LiteralString)
+
 Decorator: TypeAlias = Callable[[Callable[P, R_co]], Callable[P, R_co]]
 
 if TYPE_CHECKING:
@@ -108,6 +107,15 @@ if TYPE_CHECKING:
 
     TreeCallable: TypeAlias = Callable[[tuple[Any]], R_co]
     GenericCallable: TypeAlias = Callable[..., R_co]
+
+else:
+    PredCallable = Any
+    UnaryCallable = Any
+    BinaryCallable = Any
+    CallableFacatory = Any
+
+    TreeCallable = Any
+    GenericCallable = Any
 
 
 # ---- Framework specific types ----
@@ -125,6 +133,13 @@ if TYPE_CHECKING:
     DeconstructHook: TypeAlias = UnaryCallable[type[T], ..., T]
     Hook = Union[ConstructHook[T, Any], DeconstructHook[T]]
     Dispatchable = Union[type[T], HookPredicate[T, ...]]
+else:
+    HookPredicate = Any
+    HookFacatory = Any
+    ConstructHook = Any
+    DeconstructHook = Any
+    Hook = Any
+    Dispatchable = Any
 
 
 class SingleDispatchCallable(Generic[T]):

@@ -49,11 +49,20 @@ So `xattrs` is here born to fill the gap between `attrs` and `pydantic`, and (tr
 `xattrs` has layered architecture, which is designed to be extensible and customizable.
 
 - `xattrs` is the fundamental layer, which provides the core functionalities to serialize and deserialize instances of `attrs` and `dataclasses` types.
-  - Just use it as `attrs-serde` or `dataclass-serde`.
+  - Just use it like you thought what `attrs-serde` or `dataclass-serde` will do.
+  - Similar alternatives
+    - [yukinarit/pyserde](https://github.com/yukinarit/pyserde)
+    - [Fatal1ty/mashumaro](https://github.com/Fatal1ty/mashumaro)
+    - [lidatong/dataclasses-json](https://github.com/lidatong/dataclasses-json)
 - `xattrs.schema` is the schema layer, which provides the schema functionalities to validate annotated schema for instances of `attrs` and `dataclasses`.
   - If you're familar with `pydantic`, you could consider it as a better (?) `TypeAdapter` for `attrs` and `dataclass`.
   - If you're familar with `zod` (TypeScript), its API is inspired from `zod`.
   - Try to `import xattrs.schema as xs` and see what you could do with it.
+  - Similar alternatives
+    - [pydantic/pydantic](https://github.com/pydantic/pydantic)
+    - [marshmallow-code/marshmallow](https://github.com/marshmallow-code/marshmallow)
+    - [python-jsonschema/jsonschema](https://github.com/python-jsonschema/jsonschema)
+    - [utilmeta/utype](https://github.com/utilmeta/utype)
 
 ## Project scope
 
@@ -63,7 +72,9 @@ Goals:
 
 - Easy to use, easy to extend, easy to customize.
 - Extending upstream project as more as its recommended ways, see also [`attrs` Extending](https://www.attrs.org/en/stable/extending.html).
-- Elegant and powerful API for (de)serialization and schema validation
+- Pythonic and powerful API for (de)serialization and schema validation
+- Well-tested and well-documented
+- Runable under pyodide (WebAssembly)
 
 <!-- Non-goals: -->
 
