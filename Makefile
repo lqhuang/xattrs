@@ -43,17 +43,6 @@ sync-all:
 	$(UV) sync --all-extras
 
 # -----------------------------------------------------------------------------
-.PHONY: build
-
-build:
-	@echo "Building package"
-	$(UV) build
-
-.PHONY: test
-test:
-	@echo "Running tests"
-	$(PYTEST) ${TEST_DIR}
-
 .PHONY: lint
 lint:
 	@echo "Running linters"
@@ -61,6 +50,22 @@ lint:
 	$(BLACK) .
 	$(RUFF) . --ignore "F401,F811"
 	$(MYPY) .
+
+.PHONY: test
+test:
+	@echo "Running tests"
+	$(PYTEST) ${TEST_DIR}
+
+# -----------------------------------------------------------------------------
+.PHONY: build
+build:
+	@echo "Building package"
+	$(UV) build
+
+.PHONY: publish
+publish:
+	@echo "Building package"
+	$(UV) publish
 
 # -----------------------------------------------------------------------------
 .PHONY: docs live-docs
