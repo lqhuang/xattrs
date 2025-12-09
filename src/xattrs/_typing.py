@@ -22,7 +22,7 @@ from xattrs._compat.typing import (
 
 from dataclasses import Field
 
-from attr._make import _CountingAttr
+from attr._make import _CountingAttr  # noqa: PLC2701
 from attrs import Attribute
 
 _T = TypeVar("_T")
@@ -95,7 +95,7 @@ P2 = ParamSpec("P2")
 R_co = TypeVar("R_co", covariant=True)
 Ts = TypeVarTuple("Ts")
 
-T_ls = TypeVar("T_ls", LiteralString)
+# T_ls = TypeVar("T_ls", LiteralString)
 
 Decorator: TypeAlias = Callable[[Callable[P, R_co]], Callable[P, R_co]]
 

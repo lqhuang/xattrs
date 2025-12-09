@@ -9,7 +9,7 @@ from xattrs._compat.typing import (
     dataclass_transform,
     overload,
 )
-from xattrs._typing import AttrsInstance, DataclassInstance, T, XattrsInstance
+from xattrs._typing import AttrsInstance, DataclassInstance, T
 from xattrs.typing import (
     CaseConvention,
     CaseConverter,
@@ -130,13 +130,13 @@ def _process_serde(cls: type[T], **kwargs):
     return cls
 
 
-def _get_serde(obj: XattrsInstance) -> SerdeParams:
-    """Get the `SerdeParams` object from class or instance"""
-    cls = obj if isinstance(obj, type) else type(obj)
-    serde: SerdeParams | None = getattr(cls, _ATTRS_SERDE)
-    if serde is None:
-        raise ValueError(f"no serde params found for {cls!r}")
-    return serde
+# def _get_serde(obj: XattrsInstance) -> SerdeParams:
+#     """Get the `SerdeParams` object from class or instance"""
+#     cls = obj if isinstance(obj, type) else type(obj)
+#     serde: SerdeParams | None = getattr(cls, _ATTRS_SERDE)
+#     if serde is None:
+#         raise ValueError(f"no serde params found for {cls!r}")
+#     return serde
 
 
 def _maybe_serde(obj: Any) -> SerdeParams | None:
